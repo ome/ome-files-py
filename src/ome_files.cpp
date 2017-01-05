@@ -101,6 +101,26 @@ PyOMETIFFReader_getImageCount(PyOMETIFFReader *self) {
 }
 
 
+static PyObject *
+PyOMETIFFReader_openBytes(PyOMETIFFReader *self, PyObject *args) {
+  //uint8_t *data;
+  ome::files::VariantPixelBuffer buf;
+  size_t plane;
+  if (!PyArg_ParseTuple(args, "n", &plane)) {
+    return NULL;
+  }
+  try {
+    self->reader->openBytes(plane, buf);
+  } catch (const std::exception& e) {
+    PyErr_SetString(Error, e.what());
+    return NULL;
+  }
+  // do we need to multiply by the n. of bytes per pixel?
+  return PyString_FromStringAndSize(((char*)buf.data()),
+				    buf.num_elements());
+}
+
+
 static PyMethodDef PyOMETIFFReader_methods[] = {
   {"set_id", (PyCFunction)PyOMETIFFReader_setId, METH_VARARGS,
    "set_id(filename): set the current file name"},
@@ -109,6 +129,8 @@ static PyMethodDef PyOMETIFFReader_methods[] = {
    "If file_only is False, also reset all internal state"},
   {"get_image_count", (PyCFunction)PyOMETIFFReader_getImageCount, METH_NOARGS,
    "get_image_count(): get the number of image planes in the current series"},
+  {"open_bytes", (PyCFunction)PyOMETIFFReader_openBytes, METH_VARARGS,
+   "open_bytes(plane): obtain the image plane for the given index"},
   {NULL}  /* Sentinel */
 };
 
