@@ -34,6 +34,12 @@ import ome_files
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 IMG_PATH = os.path.join(THIS_DIR, "data", "multi-channel-4D-series.ome.tif")
 
+# A-priori knowledge from the Java lib (showinf)
+IMAGE_COUNT = 105
+SIZE_X = 439
+SIZE_Y = 167
+BYTES_PER_PIXEL = 1
+
 
 class NotABool(object):
     def __nonzero__(self):
@@ -48,9 +54,9 @@ class TestOMETiffReader(unittest.TestCase):
     def test_image_count(self):
         self.assertRaises(ome_files.Error, self.reader.get_image_count)
         self.reader.set_id(IMG_PATH)
-        self.assertEqual(self.reader.get_image_count(), 105)
+        self.assertEqual(self.reader.get_image_count(), IMAGE_COUNT)
         self.reader.close(file_only=True)
-        self.assertEqual(self.reader.get_image_count(), 105)
+        self.assertEqual(self.reader.get_image_count(), IMAGE_COUNT)
         self.reader.close()
         self.assertRaises(ome_files.Error, self.reader.get_image_count)
 
@@ -63,6 +69,11 @@ class TestOMETiffReader(unittest.TestCase):
         self.reader.set_id(IMG_PATH)
         self.assertRaises(TypeError, self.reader.close, NotABool())
         self.reader.close()
+
+    def test_open_bytes(self):
+        self.reader.set_id(IMG_PATH)
+        raw = self.reader.open_bytes(0)
+        self.assertEqual(len(raw), SIZE_X * SIZE_Y * BYTES_PER_PIXEL)
 
 
 def load_tests(loader, tests, pattern):

@@ -101,6 +101,10 @@ PyOMETIFFReader_getImageCount(PyOMETIFFReader *self) {
 }
 
 
+// This currently returns a raw byte string. At the Python level,
+// numpy.fromstring can be used (together with info on shape, bytes
+// per pixel, etc.) to get an array. By using the Numpy C API here, we
+// could return an array directly, e.g., via PyArray_NewFromDescr.
 static PyObject *
 PyOMETIFFReader_openBytes(PyOMETIFFReader *self, PyObject *args) {
   //uint8_t *data;
@@ -116,7 +120,7 @@ PyOMETIFFReader_openBytes(PyOMETIFFReader *self, PyObject *args) {
     return NULL;
   }
   // do we need to multiply by the n. of bytes per pixel?
-  return PyString_FromStringAndSize(((char*)buf.data()),
+  return PyString_FromStringAndSize(reinterpret_cast<char*>(buf.data()),
 				    buf.num_elements());
 }
 
