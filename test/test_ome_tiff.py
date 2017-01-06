@@ -33,6 +33,7 @@ import ome_files
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 IMG_PATH = os.path.join(THIS_DIR, "data", "multi-channel-4D-series.ome.tif")
+IMG_PATH_16 = os.path.join(THIS_DIR, "data", "P-TRE_10_R3D_D3D_Z30_C1.ome.tif")
 
 # A-priori knowledge from the Java lib (showinf)
 IMAGE_COUNT = 105
@@ -74,6 +75,15 @@ class TestOMETiffReader(unittest.TestCase):
         self.reader.set_id(IMG_PATH)
         raw = self.reader.open_bytes(0)
         self.assertEqual(len(raw), SIZE_X * SIZE_Y * BYTES_PER_PIXEL)
+        self.reader.close()
+
+    def test_open_bytes_multibyte(self):
+        size_x = size_y = 512
+        bytes_per_pixel = 2
+        self.reader.set_id(IMG_PATH_16)
+        raw = self.reader.open_bytes(0)
+        self.assertEqual(len(raw), size_x * size_y * bytes_per_pixel)
+        self.reader.close()
 
 
 def load_tests(loader, tests, pattern):

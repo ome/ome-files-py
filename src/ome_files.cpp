@@ -33,6 +33,7 @@
 #include <ome/compat/memory.h>
 #include <ome/files/FormatReader.h>
 #include <ome/files/in/OMETIFFReader.h>
+#include <ome/files/PixelProperties.h>
 
 
 static PyObject *Error;
@@ -107,7 +108,6 @@ PyOMETIFFReader_getImageCount(PyOMETIFFReader *self) {
 // could return an array directly, e.g., via PyArray_NewFromDescr.
 static PyObject *
 PyOMETIFFReader_openBytes(PyOMETIFFReader *self, PyObject *args) {
-  //uint8_t *data;
   ome::files::VariantPixelBuffer buf;
   size_t plane;
   if (!PyArg_ParseTuple(args, "n", &plane)) {
@@ -119,9 +119,11 @@ PyOMETIFFReader_openBytes(PyOMETIFFReader *self, PyObject *args) {
     PyErr_SetString(Error, e.what());
     return NULL;
   }
-  // do we need to multiply by the n. of bytes per pixel?
-  return PyString_FromStringAndSize(reinterpret_cast<char*>(buf.data()),
-				    buf.num_elements());
+  // buf.data() points to uint8_t, aka unsigned char
+  return PyString_FromStringAndSize(
+    reinterpret_cast<char*>(buf.data()),
+    buf.num_elements() * ome::files::bytesPerPixel(buf.pixelType())
+  );
 }
 
 
