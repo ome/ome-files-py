@@ -43,6 +43,7 @@ SIZE_Z = 5
 SIZE_T = 7
 SIZE_C = 3
 BYTES_PER_PIXEL = 1
+PIXEL_TYPE = "i1"  # int8
 
 
 class NotABool(object):
@@ -78,6 +79,13 @@ class TestOMETiffReader(unittest.TestCase):
         for dim in "xyztc":
             meth = getattr(self.reader, "get_size_%s" % dim)
             self.assertRaises(ome_files.Error, meth)
+
+    def test_pixel_type(self):
+        self.assertRaises(ome_files.Error, self.reader.get_pixel_type)
+        self.reader.set_id(IMG_PATH)
+        self.assertEqual(self.reader.get_pixel_type(), PIXEL_TYPE)
+        self.reader.close()
+        self.assertRaises(ome_files.Error, self.reader.get_pixel_type)
 
     def test_bad_id(self):
         filename = str(uuid.uuid4())

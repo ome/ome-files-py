@@ -34,6 +34,7 @@
 #include <ome/files/FormatReader.h>
 #include <ome/files/in/OMETIFFReader.h>
 #include <ome/files/PixelProperties.h>
+#include <ome/xml/model/enums/PixelType.h>
 
 
 static PyObject *Error;
@@ -157,6 +158,45 @@ PyOMETIFFReader_getSizeC(PyOMETIFFReader *self) {
 }
 
 
+static PyObject *
+PyOMETIFFReader_getPixelType(PyOMETIFFReader *self) {
+  const char *numpy_pt;
+  try {
+    switch(self->reader->getPixelType()) {
+    case ome::xml::model::enums::PixelType::INT8:
+      numpy_pt = "i1"; break;
+    case ome::xml::model::enums::PixelType::INT16:
+      numpy_pt = "i2"; break;
+    case ome::xml::model::enums::PixelType::INT32:
+      numpy_pt = "i4"; break;
+    case ome::xml::model::enums::PixelType::UINT8:
+      numpy_pt = "u1"; break;
+    case ome::xml::model::enums::PixelType::UINT16:
+      numpy_pt = "u2"; break;
+    case ome::xml::model::enums::PixelType::UINT32:
+      numpy_pt = "u4"; break;
+    case ome::xml::model::enums::PixelType::FLOAT:
+      numpy_pt = "f4"; break;
+    case ome::xml::model::enums::PixelType::DOUBLE:
+      numpy_pt = "f8"; break;
+    case ome::xml::model::enums::PixelType::COMPLEXFLOAT:
+      numpy_pt = "c8"; break;
+    case ome::xml::model::enums::PixelType::COMPLEXDOUBLE:
+      numpy_pt = "c16"; break;
+    case ome::xml::model::enums::PixelType::BIT:
+      numpy_pt = "b1"; break;
+    default:
+      PyErr_SetString(Error, "unknown pixel type");
+      return NULL;
+    }
+  } catch (const std::exception& e) {
+    PyErr_SetString(Error, e.what());
+    return NULL;
+  }
+  return PyString_FromString(numpy_pt);
+}
+
+
 // This currently returns a raw byte string. At the Python level,
 // numpy.fromstring can be used (together with info on shape, bytes
 // per pixel, etc.) to get an array. By using the Numpy C API here, we
@@ -200,6 +240,8 @@ static PyMethodDef PyOMETIFFReader_methods[] = {
    "get_size_t(): get the size of the T dimension"},
   {"get_size_c", (PyCFunction)PyOMETIFFReader_getSizeC, METH_NOARGS,
    "get_size_c(): get the size of the C dimension"},
+  {"get_pixel_type", (PyCFunction)PyOMETIFFReader_getPixelType, METH_NOARGS,
+   "get_pixel_type(): get the pixel type"},
   {"open_bytes", (PyCFunction)PyOMETIFFReader_openBytes, METH_VARARGS,
    "open_bytes(plane): obtain the image plane for the given index"},
   {NULL}  /* Sentinel */
