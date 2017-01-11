@@ -39,6 +39,9 @@ IMG_PATH_16 = os.path.join(THIS_DIR, "data", "P-TRE_10_R3D_D3D_Z30_C1.ome.tif")
 IMAGE_COUNT = 105
 SIZE_X = 439
 SIZE_Y = 167
+SIZE_Z = 5
+SIZE_T = 7
+SIZE_C = 3
 BYTES_PER_PIXEL = 1
 
 
@@ -60,6 +63,21 @@ class TestOMETiffReader(unittest.TestCase):
         self.assertEqual(self.reader.get_image_count(), IMAGE_COUNT)
         self.reader.close()
         self.assertRaises(ome_files.Error, self.reader.get_image_count)
+
+    def test_dimensions(self):
+        for dim in "xyztc":
+            meth = getattr(self.reader, "get_size_%s" % dim)
+            self.assertRaises(ome_files.Error, meth)
+        self.reader.set_id(IMG_PATH)
+        self.assertEqual(self.reader.get_size_x(), SIZE_X)
+        self.assertEqual(self.reader.get_size_y(), SIZE_Y)
+        self.assertEqual(self.reader.get_size_z(), SIZE_Z)
+        self.assertEqual(self.reader.get_size_t(), SIZE_T)
+        self.assertEqual(self.reader.get_size_c(), SIZE_C)
+        self.reader.close()
+        for dim in "xyztc":
+            meth = getattr(self.reader, "get_size_%s" % dim)
+            self.assertRaises(ome_files.Error, meth)
 
     def test_bad_id(self):
         filename = str(uuid.uuid4())

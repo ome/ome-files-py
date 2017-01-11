@@ -14,7 +14,6 @@ IMG_PATH = os.path.join(
 
 # TODO: make the following info available via the API
 PIXEL_TYPE = np.int8
-H, W = 167, 439
 
 reader = ome_files.OMETIFFReader()
 reader.set_id(IMG_PATH)
@@ -22,6 +21,7 @@ img_count = reader.get_image_count()
 print "image count: %d" % img_count
 for i in xrange(img_count):
     raw = reader.open_bytes(i)
+    H, W = reader.get_size_y(), reader.get_size_x()
     pixels = np.fromstring(raw, dtype=PIXEL_TYPE).reshape((H, W))
     out_fn = "plane_%d.tiff" % i
     print "writing %s" % out_fn

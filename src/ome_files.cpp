@@ -102,6 +102,61 @@ PyOMETIFFReader_getImageCount(PyOMETIFFReader *self) {
 }
 
 
+static PyObject *
+PyOMETIFFReader_getSizeX(PyOMETIFFReader *self) {
+  try {
+    return PyInt_FromSize_t(self->reader->getSizeX());
+  } catch (const std::exception& e) {
+    PyErr_SetString(Error, e.what());
+    return NULL;
+  }
+}
+
+
+static PyObject *
+PyOMETIFFReader_getSizeY(PyOMETIFFReader *self) {
+  try {
+    return PyInt_FromSize_t(self->reader->getSizeY());
+  } catch (const std::exception& e) {
+    PyErr_SetString(Error, e.what());
+    return NULL;
+  }
+}
+
+
+static PyObject *
+PyOMETIFFReader_getSizeZ(PyOMETIFFReader *self) {
+  try {
+    return PyInt_FromSize_t(self->reader->getSizeZ());
+  } catch (const std::exception& e) {
+    PyErr_SetString(Error, e.what());
+    return NULL;
+  }
+}
+
+
+static PyObject *
+PyOMETIFFReader_getSizeT(PyOMETIFFReader *self) {
+  try {
+    return PyInt_FromSize_t(self->reader->getSizeT());
+  } catch (const std::exception& e) {
+    PyErr_SetString(Error, e.what());
+    return NULL;
+  }
+}
+
+
+static PyObject *
+PyOMETIFFReader_getSizeC(PyOMETIFFReader *self) {
+  try {
+    return PyInt_FromSize_t(self->reader->getSizeC());
+  } catch (const std::exception& e) {
+    PyErr_SetString(Error, e.what());
+    return NULL;
+  }
+}
+
+
 // This currently returns a raw byte string. At the Python level,
 // numpy.fromstring can be used (together with info on shape, bytes
 // per pixel, etc.) to get an array. By using the Numpy C API here, we
@@ -135,6 +190,16 @@ static PyMethodDef PyOMETIFFReader_methods[] = {
    "If file_only is False, also reset all internal state"},
   {"get_image_count", (PyCFunction)PyOMETIFFReader_getImageCount, METH_NOARGS,
    "get_image_count(): get the number of image planes in the current series"},
+  {"get_size_x", (PyCFunction)PyOMETIFFReader_getSizeX, METH_NOARGS,
+   "get_size_x(): get the size of the X dimension"},
+  {"get_size_y", (PyCFunction)PyOMETIFFReader_getSizeY, METH_NOARGS,
+   "get_size_y(): get the size of the Y dimension"},
+  {"get_size_z", (PyCFunction)PyOMETIFFReader_getSizeZ, METH_NOARGS,
+   "get_size_z(): get the size of the Z dimension"},
+  {"get_size_t", (PyCFunction)PyOMETIFFReader_getSizeT, METH_NOARGS,
+   "get_size_t(): get the size of the T dimension"},
+  {"get_size_c", (PyCFunction)PyOMETIFFReader_getSizeC, METH_NOARGS,
+   "get_size_c(): get the size of the C dimension"},
   {"open_bytes", (PyCFunction)PyOMETIFFReader_openBytes, METH_VARARGS,
    "open_bytes(plane): obtain the image plane for the given index"},
   {NULL}  /* Sentinel */
