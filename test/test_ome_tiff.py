@@ -44,6 +44,8 @@ SIZE_T = 7
 SIZE_C = 3
 BYTES_PER_PIXEL = 1
 PIXEL_TYPE = "i1"  # int8
+RGB_C_COUNT = 1
+INTERLEAVED = False
 
 
 class NotABool(object):
@@ -96,6 +98,24 @@ class TestOMETiffReader(unittest.TestCase):
         self.reader.set_id(IMG_PATH)
         self.assertRaises(TypeError, self.reader.close, NotABool())
         self.reader.close()
+
+    def test_rgb_channel_count(self):
+        self.assertRaises(ome_files.Error,
+                          self.reader.get_rgb_channel_count, 0)
+        self.reader.set_id(IMG_PATH)
+        self.assertRaises(TypeError, self.reader.get_rgb_channel_count, 0.)
+        self.assertEqual(self.reader.get_rgb_channel_count(0), RGB_C_COUNT)
+        self.reader.close()
+        self.assertRaises(ome_files.Error,
+                          self.reader.get_rgb_channel_count, 0)
+
+    def test_interleaved(self):
+        self.assertRaises(ome_files.Error, self.reader.is_interleaved, 0)
+        self.reader.set_id(IMG_PATH)
+        self.assertRaises(TypeError, self.reader.is_interleaved, 0.)
+        self.assertEqual(self.reader.is_interleaved(0), INTERLEAVED)
+        self.reader.close()
+        self.assertRaises(ome_files.Error, self.reader.is_interleaved, 0)
 
     def test_open_bytes(self):
         self.reader.set_id(IMG_PATH)

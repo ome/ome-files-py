@@ -197,6 +197,36 @@ PyOMETIFFReader_getPixelType(PyOMETIFFReader *self) {
 }
 
 
+static PyObject *
+PyOMETIFFReader_getRGBChannelCount(PyOMETIFFReader *self, PyObject *args) {
+  size_t channel;
+  if (!PyArg_ParseTuple(args, "n", &channel)) {
+    return NULL;
+  }
+  try {
+    return PyInt_FromSize_t(self->reader->getRGBChannelCount(channel));
+  } catch (const std::exception& e) {
+    PyErr_SetString(Error, e.what());
+    return NULL;
+  }
+}
+
+
+static PyObject *
+PyOMETIFFReader_isInterleaved(PyOMETIFFReader *self, PyObject *args) {
+  size_t channel;
+  if (!PyArg_ParseTuple(args, "n", &channel)) {
+    return NULL;
+  }
+  try {
+    return PyBool_FromLong(self->reader->isInterleaved(channel));
+  } catch (const std::exception& e) {
+    PyErr_SetString(Error, e.what());
+    return NULL;
+  }
+}
+
+
 // This currently returns a raw byte string. At the Python level,
 // numpy.fromstring can be used (together with info on shape, bytes
 // per pixel, etc.) to get an array. By using the Numpy C API here, we
@@ -242,6 +272,11 @@ static PyMethodDef PyOMETIFFReader_methods[] = {
    "get_size_c(): get the size of the C dimension"},
   {"get_pixel_type", (PyCFunction)PyOMETIFFReader_getPixelType, METH_NOARGS,
    "get_pixel_type(): get the pixel type"},
+  {"get_rgb_channel_count", (PyCFunction)PyOMETIFFReader_getRGBChannelCount,
+   METH_VARARGS, "get_rgb_channel_count(channel): "
+   "get the number of sub-channels for the given channel"},
+  {"is_interleaved", (PyCFunction)PyOMETIFFReader_isInterleaved, METH_VARARGS,
+   "is_interleaved(channel): whether or not the given channel is interleaved"},
   {"open_bytes", (PyCFunction)PyOMETIFFReader_openBytes, METH_VARARGS,
    "open_bytes(plane): obtain the image plane for the given index"},
   {NULL}  /* Sentinel */
