@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 
 """\
-Open an OME-TIFF file and dump each plane to an individual TIFF
-file. Works only on non-RGB data at the moment.
+Open an OME-TIFF file and dump each plane to an individual TIFF file.
 """
 
 import sys
@@ -19,16 +18,36 @@ def dump(ome_tiff_fn):
     reader = ome_files.OMETIFFReader()
     reader.set_id(ome_tiff_fn)
     img_count = reader.get_image_count()
+    H, W = reader.get_size_y(), reader.get_size_x()
+    dtype = np.dtype(reader.get_pixel_type())
+    rgb = reader.get_rgb_channel_count(0)
+    interleaved = reader.is_interleaved(0)
     print "image count: %d" % img_count
+    print "RGB sub-channels: %d (%sinterleaved)" % (
+        rgb, "" if interleaved else "non-"
+    )
+    print "image size: %d x %d" % (W, H)
+    print "pixel type:", dtype
     for i in xrange(img_count):
         raw = reader.open_bytes(i)
-        H, W = reader.get_size_y(), reader.get_size_x()
-        dtype = reader.get_pixel_type()
-        pixels = np.fromstring(raw, dtype=dtype).reshape((H, W))
+        pixels = np.fromstring(raw, dtype=dtype)
+        N = H * W
+        assert pixels.size == N * rgb
+        if rgb <= 1:
+            write_rgb = False
+            pixels = pixels.reshape((H, W))
+        else:
+            write_rgb = True
+            if interleaved:
+                pixels = [pixels[j: j+N*rgb: rgb].reshape((H, W))
+                          for j in xrange(rgb)]
+            else:
+                pixels = [pixels[N*j: N*(j+1)].reshape((H, W))
+                          for j in xrange(rgb)]
         out_fn = "plane_%d.tiff" % i
         print "writing %s" % out_fn
         with closing(TIFF.open(out_fn, mode="w")) as fo:
-            fo.write_image(pixels)
+            fo.write_image(pixels, write_rgb=write_rgb)
     reader.close()
 
 
