@@ -36,6 +36,7 @@ IMG_PATH = os.path.join(THIS_DIR, "data", "multi-channel-4D-series.ome.tif")
 IMG_PATH_16 = os.path.join(THIS_DIR, "data", "P-TRE_10_R3D_D3D_Z30_C1.ome.tif")
 
 # A-priori knowledge from the Java lib (showinf)
+SERIES_COUNT = 1
 IMAGE_COUNT = 105
 SIZE_X = 439
 SIZE_Y = 167
@@ -66,6 +67,22 @@ class TestOMETiffReader(unittest.TestCase):
         self.assertEqual(self.reader.get_image_count(), IMAGE_COUNT)
         self.reader.close()
         self.assertRaises(ome_files.Error, self.reader.get_image_count)
+
+    def test_series_count(self):
+        self.assertRaises(ome_files.Error, self.reader.get_series_count)
+        self.reader.set_id(IMG_PATH)
+        self.assertEqual(self.reader.get_series_count(), SERIES_COUNT)
+        self.reader.close()
+        self.assertRaises(ome_files.Error, self.reader.get_series_count)
+
+    def test_series(self):
+        self.assertRaises(ome_files.Error, self.reader.set_series, 0)
+        self.reader.set_id(IMG_PATH)
+        self.assertRaises(TypeError, self.reader.set_series, 0.)
+        self.reader.set_series(0)
+        self.assertEqual(self.reader.get_series(), 0)
+        self.reader.close()
+        self.assertRaises(ome_files.Error, self.reader.set_series, 0)
 
     def test_dimensions(self):
         for dim in "xyztc":

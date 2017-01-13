@@ -93,6 +93,44 @@ PyOMETIFFReader_close(PyOMETIFFReader *self, PyObject *args, PyObject *kwds) {
 
 
 static PyObject *
+PyOMETIFFReader_setSeries(PyOMETIFFReader *self, PyObject *args) {
+  size_t series;
+  if (!PyArg_ParseTuple(args, "n", &series)) {
+    return NULL;
+  }
+  try {
+    self->reader->setSeries(series);
+  } catch (const std::exception& e) {
+    PyErr_SetString(Error, e.what());
+    return NULL;
+  }
+  Py_RETURN_NONE;
+}
+
+
+static PyObject *
+PyOMETIFFReader_getSeries(PyOMETIFFReader *self) {
+  try {
+    return PyInt_FromSize_t(self->reader->getSeries());
+  } catch (const std::exception& e) {
+    PyErr_SetString(Error, e.what());
+    return NULL;
+  }
+}
+
+
+static PyObject *
+PyOMETIFFReader_getSeriesCount(PyOMETIFFReader *self) {
+  try {
+    return PyInt_FromSize_t(self->reader->getSeriesCount());
+  } catch (const std::exception& e) {
+    PyErr_SetString(Error, e.what());
+    return NULL;
+  }
+}
+
+
+static PyObject *
 PyOMETIFFReader_getImageCount(PyOMETIFFReader *self) {
   try {
     return PyInt_FromSize_t(self->reader->getImageCount());
@@ -258,6 +296,12 @@ static PyMethodDef PyOMETIFFReader_methods[] = {
   {"close", (PyCFunction)PyOMETIFFReader_close, METH_VARARGS | METH_KEYWORDS,
    "close(file_only=False): close the currently open file. "
    "If file_only is False, also reset all internal state"},
+  {"set_series", (PyCFunction)PyOMETIFFReader_setSeries, METH_VARARGS,
+   "set_series(series): set the active series"},
+  {"get_series", (PyCFunction)PyOMETIFFReader_getSeries, METH_NOARGS,
+   "get_series(): get the active series"},
+  {"get_series_count", (PyCFunction)PyOMETIFFReader_getSeriesCount,
+   METH_NOARGS, "get_series_count(): get the number of image series"},
   {"get_image_count", (PyCFunction)PyOMETIFFReader_getImageCount, METH_NOARGS,
    "get_image_count(): get the number of image planes in the current series"},
   {"get_size_x", (PyCFunction)PyOMETIFFReader_getSizeX, METH_NOARGS,
