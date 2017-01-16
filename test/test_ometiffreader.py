@@ -56,6 +56,9 @@ class NotABool(object):
 
 class TestOMETiffReader(unittest.TestCase):
 
+    def assertPathEqual(self, p1, p2, msg=None):
+        self.assertEqual(os.path.realpath(p1), os.path.realpath(p2), msg=msg)
+
     def setUp(self):
         self.reader = ome_files.OMETIFFReader()
 
@@ -150,6 +153,17 @@ class TestOMETiffReader(unittest.TestCase):
         raw = self.reader.open_bytes(0)
         self.assertEqual(len(raw), size_x * size_y * bytes_per_pixel)
         self.reader.close()
+
+    def test_used_files(self):
+        self.assertRaises(ome_files.Error, self.reader.get_used_files)
+        self.reader.set_id(IMG_PATH)
+        self.assertRaises(TypeError, self.reader.get_used_files, NotABool())
+        fnames = self.reader.get_used_files()
+        self.assertEqual(len(fnames), 1)
+        self.assertPathEqual(fnames[0], IMG_PATH)
+        self.assertEqual(len(self.reader.get_used_files(no_pixels=True)), 0)
+        self.reader.close()
+        self.assertRaises(ome_files.Error, self.reader.get_used_files)
 
 
 def load_tests(loader, tests, pattern):

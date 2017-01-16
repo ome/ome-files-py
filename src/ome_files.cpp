@@ -30,6 +30,8 @@
 
 #include <string>
 
+#include <boost/filesystem/path.hpp>
+
 #include <ome/compat/memory.h>
 #include <ome/files/FormatReader.h>
 #include <ome/files/in/OMETIFFReader.h>
@@ -290,6 +292,51 @@ PyOMETIFFReader_openBytes(PyOMETIFFReader *self, PyObject *args) {
 }
 
 
+static PyObject *
+PyOMETIFFReader_getUsedFiles(PyOMETIFFReader *self, PyObject *args,
+    PyObject *kwds) {
+  std::vector<boost::filesystem::path> files;
+  PyObject *file_list;
+  PyObject *no_pixels = Py_False;
+  static const char *kwlist[] = {"no_pixels", NULL};
+  int noPixels;
+  if (!PyArg_ParseTupleAndKeywords(
+        args, kwds, "|O", const_cast<char**>(kwlist), &no_pixels)) {
+    return NULL;
+  }
+  noPixels = PyObject_IsTrue(no_pixels);
+  if (noPixels < 0) {
+    return PyErr_Format(PyExc_TypeError, "could not convert argument to bool");
+  }
+  try {
+    files = self->reader->getUsedFiles(noPixels);
+  } catch (const std::exception& e) {
+    PyErr_SetString(Error, e.what());
+    return NULL;
+  }
+  file_list = PyList_New(0);
+  if (file_list == NULL) {
+    PyErr_SetString(PyExc_RuntimeError, "list creation failed");
+    return NULL;
+  }
+  PyObject *fname;
+  for (const auto &f : files) {
+    fname = PyString_FromString(f.string().c_str());
+    if (fname == NULL) {
+      PyErr_SetString(PyExc_RuntimeError, "string creation failed");
+      Py_DECREF(file_list);
+      return NULL;
+    }
+    if (PyList_Append(file_list, fname) < 0) {
+      PyErr_SetString(PyExc_RuntimeError, "list append failed");
+      Py_DECREF(file_list);
+      return NULL;
+    }
+  }
+  return file_list;
+}
+
+
 static PyMethodDef PyOMETIFFReader_methods[] = {
   {"set_id", (PyCFunction)PyOMETIFFReader_setId, METH_VARARGS,
    "set_id(filename): set the current file name"},
@@ -323,6 +370,10 @@ static PyMethodDef PyOMETIFFReader_methods[] = {
    "is_interleaved(channel): whether or not the given channel is interleaved"},
   {"open_bytes", (PyCFunction)PyOMETIFFReader_openBytes, METH_VARARGS,
    "open_bytes(plane): obtain the image plane for the given index"},
+  {"get_used_files", (PyCFunction)PyOMETIFFReader_getUsedFiles,
+   METH_VARARGS | METH_KEYWORDS,
+   "get_used_files(no_pixels=False): get the files used by this dataset. "
+   "If no_pixels is False, exclude pixel data files"},
   {NULL}  /* Sentinel */
 };
 
