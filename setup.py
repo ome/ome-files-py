@@ -26,11 +26,15 @@
 
 import sys
 import os
+import platform
 from distutils.core import setup, Extension
 from distutils.command.build_ext import build_ext as BaseBuildExt
 from distutils.unixccompiler import UnixCCompiler
 from distutils.util import get_platform
 from distutils.sysconfig import customize_compiler
+
+
+EXTRA_COMPILE_ARGS = ['-std=c++11'] if platform.system != "Windows" else []
 
 
 # On Darwin, UnixCCompiler uses "-L" for runtime lib paths
@@ -84,6 +88,7 @@ ext = Extension(
     "ome_files",
     sources=["src/ome_files.cpp"],
     libraries=["ome-common", "ome-files", "ome-xml"],
+    extra_compile_args=EXTRA_COMPILE_ARGS,
 )
 
 setup(name="ome_files", cmdclass={"build_ext": BuildExt}, ext_modules=[ext])
