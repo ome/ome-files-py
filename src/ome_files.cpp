@@ -1,7 +1,7 @@
 /*
  * #%L
  * OME-FILES Python library for image IO.
- * Copyright (c) 2016 University of Dundee
+ * Copyright (c) 2016-2017 University of Dundee
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
