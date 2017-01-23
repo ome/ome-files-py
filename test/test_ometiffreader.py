@@ -32,21 +32,25 @@ import ome_files
 
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-IMG_PATH = os.path.join(THIS_DIR, "data", "multi-channel-4D-series.ome.tif")
-IMG_PATH_16 = os.path.join(THIS_DIR, "data", "P-TRE_10_R3D_D3D_Z30_C1.ome.tif")
+IMG_PATH = os.path.join(THIS_DIR, "data",
+                        "multi-channel-4D-series.companion.ome")
 
 # A-priori knowledge from the Java lib (showinf)
 SERIES_COUNT = 1
-IMAGE_COUNT = 105
-SIZE_X = 439
-SIZE_Y = 167
+IMAGE_COUNT = 60
+SIZE_X = 128
+SIZE_Y = 64
 SIZE_Z = 5
-SIZE_T = 7
+SIZE_T = 4
 SIZE_C = 3
-BYTES_PER_PIXEL = 1
-PIXEL_TYPE = "i1"  # int8
+BYTES_PER_PIXEL = 2
+PIXEL_TYPE = "u2"  # uint16
 RGB_C_COUNT = 1
 INTERLEAVED = False
+USED_FILES = [
+    IMG_PATH,
+    os.path.join(THIS_DIR, "data", "plane.ome.tiff"),
+]
 
 
 class NotABool(object):
@@ -56,8 +60,9 @@ class NotABool(object):
 
 class TestOMETiffReader(unittest.TestCase):
 
-    def assertPathEqual(self, p1, p2, msg=None):
-        self.assertEqual(os.path.realpath(p1), os.path.realpath(p2), msg=msg)
+    def assertPathsEqualNoOrder(self, paths1, paths2, msg=None):
+        self.assertEqual(sorted(os.path.realpath(_) for _ in paths1),
+                         sorted(os.path.realpath(_) for _ in paths2), msg=msg)
 
     def setUp(self):
         self.reader = ome_files.OMETIFFReader()
@@ -146,21 +151,13 @@ class TestOMETiffReader(unittest.TestCase):
         self.reader.close()
         self.assertRaises(ome_files.Error, self.reader.open_bytes, 0)
 
-    def test_open_bytes_multibyte(self):
-        size_x = size_y = 512
-        bytes_per_pixel = 2
-        self.reader.set_id(IMG_PATH_16)
-        raw = self.reader.open_bytes(0)
-        self.assertEqual(len(raw), size_x * size_y * bytes_per_pixel)
-        self.reader.close()
-
     def test_used_files(self):
         self.assertRaises(ome_files.Error, self.reader.get_used_files)
         self.reader.set_id(IMG_PATH)
         self.assertRaises(TypeError, self.reader.get_used_files, NotABool())
         fnames = self.reader.get_used_files()
-        self.assertEqual(len(fnames), 1)
-        self.assertPathEqual(fnames[0], IMG_PATH)
+        self.assertEqual(len(fnames), len(USED_FILES))
+        self.assertPathsEqualNoOrder(fnames, USED_FILES)
         self.assertEqual(len(self.reader.get_used_files(no_pixels=True)), 0)
         self.reader.close()
         self.assertRaises(ome_files.Error, self.reader.get_used_files)
