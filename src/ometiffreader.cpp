@@ -36,6 +36,8 @@
 #include <ome/files/in/OMETIFFReader.h>
 #include <ome/files/PixelProperties.h>
 #include <ome/xml/model/enums/PixelType.h>
+#include <ome/xml/meta/MetadataStore.h>
+#include <ome/xml/meta/OMEXMLMetadata.h>
 
 #include "ometiffreader.h"
 #include "errors.h"
@@ -330,6 +332,37 @@ PyOMETIFFReader_getUsedFiles(PyOMETIFFReader *self, PyObject *args,
 }
 
 
+static PyObject *
+PyOMETIFFReader_initMetadata(PyOMETIFFReader *self) {
+  try {
+    ome::compat::shared_ptr<ome::xml::meta::MetadataStore> store(
+      ome::compat::make_shared<ome::xml::meta::OMEXMLMetadata>());
+    self->reader->setMetadataStore(store);
+  } catch (const std::exception& e) {
+    PyErr_SetString(OMEFilesPyError, e.what());
+    return NULL;
+  }
+  Py_RETURN_NONE;
+}
+
+
+static PyObject *
+PyOMETIFFReader_getMetadata(PyOMETIFFReader *self) {
+  try {
+    ome::compat::shared_ptr<ome::xml::meta::OMEXMLMetadata> meta(
+      ome::compat::dynamic_pointer_cast<ome::xml::meta::OMEXMLMetadata>(
+        self->reader->getMetadataStore()));
+    if (!meta) {
+      return PyString_FromString("");
+    }
+    return PyString_FromString(meta->dumpXML().c_str());
+  } catch (const std::exception& e) {
+    PyErr_SetString(OMEFilesPyError, e.what());
+    return NULL;
+  }
+}
+
+
 static PyMethodDef PyOMETIFFReader_methods[] = {
   {"set_id", (PyCFunction)PyOMETIFFReader_setId, METH_VARARGS,
    "set_id(filename): set the current file name"},
@@ -367,6 +400,10 @@ static PyMethodDef PyOMETIFFReader_methods[] = {
    METH_VARARGS | METH_KEYWORDS,
    "get_used_files(no_pixels=False): get the files used by this dataset. "
    "If no_pixels is False, exclude pixel data files"},
+  {"init_metadata", (PyCFunction)PyOMETIFFReader_initMetadata, METH_NOARGS,
+   "init_metadata(): initialize reader with an OME XML metadata store"},
+  {"get_metadata", (PyCFunction)PyOMETIFFReader_getMetadata, METH_NOARGS,
+   "get_metadata(): get OME XML metadata"},
   {NULL}  /* Sentinel */
 };
 
