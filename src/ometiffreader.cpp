@@ -33,19 +33,12 @@
 #include <boost/filesystem/path.hpp>
 
 #include <ome/compat/memory.h>
-#include <ome/files/FormatReader.h>
 #include <ome/files/in/OMETIFFReader.h>
 #include <ome/files/PixelProperties.h>
 #include <ome/xml/model/enums/PixelType.h>
 
-
-static PyObject *Error;
-
-
-typedef struct {
-    PyObject_HEAD
-    ome::compat::shared_ptr<ome::files::FormatReader> reader;
-} PyOMETIFFReader;
+#include "ometiffreader.h"
+#include "errors.h"
 
 
 static int
@@ -64,7 +57,7 @@ PyOMETIFFReader_setId(PyOMETIFFReader *self, PyObject *args) {
   try {
     self->reader->setId(std::string(filename));
   } catch (const std::exception& e) {
-    PyErr_SetString(Error, e.what());
+    PyErr_SetString(OMEFilesPyError, e.what());
     return NULL;
   }
   Py_RETURN_NONE;
@@ -87,7 +80,7 @@ PyOMETIFFReader_close(PyOMETIFFReader *self, PyObject *args, PyObject *kwds) {
   try {
     self->reader->close(fileOnly);
   } catch (const std::exception& e) {
-    PyErr_SetString(Error, e.what());
+    PyErr_SetString(OMEFilesPyError, e.what());
     return NULL;
   }
   Py_RETURN_NONE;
@@ -103,7 +96,7 @@ PyOMETIFFReader_setSeries(PyOMETIFFReader *self, PyObject *args) {
   try {
     self->reader->setSeries(series);
   } catch (const std::exception& e) {
-    PyErr_SetString(Error, e.what());
+    PyErr_SetString(OMEFilesPyError, e.what());
     return NULL;
   }
   Py_RETURN_NONE;
@@ -115,7 +108,7 @@ PyOMETIFFReader_getSeries(PyOMETIFFReader *self) {
   try {
     return PyInt_FromSize_t(self->reader->getSeries());
   } catch (const std::exception& e) {
-    PyErr_SetString(Error, e.what());
+    PyErr_SetString(OMEFilesPyError, e.what());
     return NULL;
   }
 }
@@ -126,7 +119,7 @@ PyOMETIFFReader_getSeriesCount(PyOMETIFFReader *self) {
   try {
     return PyInt_FromSize_t(self->reader->getSeriesCount());
   } catch (const std::exception& e) {
-    PyErr_SetString(Error, e.what());
+    PyErr_SetString(OMEFilesPyError, e.what());
     return NULL;
   }
 }
@@ -137,7 +130,7 @@ PyOMETIFFReader_getImageCount(PyOMETIFFReader *self) {
   try {
     return PyInt_FromSize_t(self->reader->getImageCount());
   } catch (const std::exception& e) {
-    PyErr_SetString(Error, e.what());
+    PyErr_SetString(OMEFilesPyError, e.what());
     return NULL;
   }
 }
@@ -148,7 +141,7 @@ PyOMETIFFReader_getSizeX(PyOMETIFFReader *self) {
   try {
     return PyInt_FromSize_t(self->reader->getSizeX());
   } catch (const std::exception& e) {
-    PyErr_SetString(Error, e.what());
+    PyErr_SetString(OMEFilesPyError, e.what());
     return NULL;
   }
 }
@@ -159,7 +152,7 @@ PyOMETIFFReader_getSizeY(PyOMETIFFReader *self) {
   try {
     return PyInt_FromSize_t(self->reader->getSizeY());
   } catch (const std::exception& e) {
-    PyErr_SetString(Error, e.what());
+    PyErr_SetString(OMEFilesPyError, e.what());
     return NULL;
   }
 }
@@ -170,7 +163,7 @@ PyOMETIFFReader_getSizeZ(PyOMETIFFReader *self) {
   try {
     return PyInt_FromSize_t(self->reader->getSizeZ());
   } catch (const std::exception& e) {
-    PyErr_SetString(Error, e.what());
+    PyErr_SetString(OMEFilesPyError, e.what());
     return NULL;
   }
 }
@@ -181,7 +174,7 @@ PyOMETIFFReader_getSizeT(PyOMETIFFReader *self) {
   try {
     return PyInt_FromSize_t(self->reader->getSizeT());
   } catch (const std::exception& e) {
-    PyErr_SetString(Error, e.what());
+    PyErr_SetString(OMEFilesPyError, e.what());
     return NULL;
   }
 }
@@ -192,7 +185,7 @@ PyOMETIFFReader_getSizeC(PyOMETIFFReader *self) {
   try {
     return PyInt_FromSize_t(self->reader->getSizeC());
   } catch (const std::exception& e) {
-    PyErr_SetString(Error, e.what());
+    PyErr_SetString(OMEFilesPyError, e.what());
     return NULL;
   }
 }
@@ -226,11 +219,11 @@ PyOMETIFFReader_getPixelType(PyOMETIFFReader *self) {
     case ome::xml::model::enums::PixelType::BIT:
       numpy_pt = "b1"; break;
     default:
-      PyErr_SetString(Error, "unknown pixel type");
+      PyErr_SetString(OMEFilesPyError, "unknown pixel type");
       return NULL;
     }
   } catch (const std::exception& e) {
-    PyErr_SetString(Error, e.what());
+    PyErr_SetString(OMEFilesPyError, e.what());
     return NULL;
   }
   return PyString_FromString(numpy_pt);
@@ -246,7 +239,7 @@ PyOMETIFFReader_getRGBChannelCount(PyOMETIFFReader *self, PyObject *args) {
   try {
     return PyInt_FromSize_t(self->reader->getRGBChannelCount(channel));
   } catch (const std::exception& e) {
-    PyErr_SetString(Error, e.what());
+    PyErr_SetString(OMEFilesPyError, e.what());
     return NULL;
   }
 }
@@ -261,7 +254,7 @@ PyOMETIFFReader_isInterleaved(PyOMETIFFReader *self, PyObject *args) {
   try {
     return PyBool_FromLong(self->reader->isInterleaved(channel));
   } catch (const std::exception& e) {
-    PyErr_SetString(Error, e.what());
+    PyErr_SetString(OMEFilesPyError, e.what());
     return NULL;
   }
 }
@@ -281,7 +274,7 @@ PyOMETIFFReader_openBytes(PyOMETIFFReader *self, PyObject *args) {
   try {
     self->reader->openBytes(plane, buf);
   } catch (const std::exception& e) {
-    PyErr_SetString(Error, e.what());
+    PyErr_SetString(OMEFilesPyError, e.what());
     return NULL;
   }
   // buf.data() points to uint8_t, aka unsigned char
@@ -311,7 +304,7 @@ PyOMETIFFReader_getUsedFiles(PyOMETIFFReader *self, PyObject *args,
   try {
     files = self->reader->getUsedFiles(noPixels);
   } catch (const std::exception& e) {
-    PyErr_SetString(Error, e.what());
+    PyErr_SetString(OMEFilesPyError, e.what());
     return NULL;
   }
   file_list = PyList_New(0);
@@ -419,27 +412,3 @@ PyTypeObject PyOMETIFFReaderType = {
     0,                                                /* tp_alloc */
     0,                                                /* tp_new */
 };
-
-
-static PyMethodDef OMEFilesMethods[] = {
-  {NULL}  /* Sentinel */
-};
-
-
-PyMODINIT_FUNC
-initome_files(void) {
-  PyObject *m;
-  PyOMETIFFReaderType.tp_new = PyType_GenericNew;
-  if (PyType_Ready(&PyOMETIFFReaderType) < 0) {
-    return;
-  }
-  m = Py_InitModule3("ome_files", OMEFilesMethods, "OME Files wrapper");
-  if (!m) {
-    return;
-  }
-  Py_INCREF(&PyOMETIFFReaderType);
-  PyModule_AddObject(m, "OMETIFFReader", (PyObject *)&PyOMETIFFReaderType);
-  Error = PyErr_NewException(const_cast<char*>("ome_files.Error"), NULL, NULL);
-  Py_INCREF(Error);
-  PyModule_AddObject(m, "Error", Error);
-}
