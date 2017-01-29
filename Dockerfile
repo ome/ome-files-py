@@ -35,8 +35,7 @@ RUN make
 RUN make install
 RUN ldconfig
 
-WORKDIR /git
-RUN git clone --branch=master https://github.com/ome/ome-files-py
+COPY . /git/ome-files-py
 
 WORKDIR /git/ome-files-py
 RUN python setup.py install
