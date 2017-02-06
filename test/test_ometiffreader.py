@@ -24,6 +24,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 # #L%
 
+import sys
 import os
 import uuid
 import unittest
@@ -174,4 +175,5 @@ def load_tests(loader, tests, pattern):
 if __name__ == '__main__':
     suite = load_tests(unittest.defaultTestLoader, None, None)
     runner = unittest.TextTestRunner(verbosity=2)
-    runner.run(suite)
+    result = runner.run(suite)
+    sys.exit(not result.wasSuccessful())

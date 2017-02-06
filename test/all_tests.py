@@ -24,6 +24,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 # #L%
 
+import sys
 import os
 import unittest
 
@@ -33,8 +34,9 @@ THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 def main():
     suite = unittest.defaultTestLoader.discover(THIS_DIR)
     runner = unittest.TextTestRunner(verbosity=2)
-    runner.run(suite)
+    return runner.run(suite)
 
 
 if __name__ == "__main__":
-    main()
+    result = main()
+    sys.exit(not result.wasSuccessful())
