@@ -36,7 +36,7 @@ THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 IMG_PATH = os.path.join(THIS_DIR, "data",
                         "multi-channel-4D-series.companion.ome")
 
-# A-priori knowledge from the Java lib (showinf)
+# A-priori knowledge from the C++ implementation (ome-files info)
 SERIES_COUNT = 1
 IMAGE_COUNT = 60
 SIZE_X = 128
@@ -47,7 +47,7 @@ SIZE_C = 3
 BYTES_PER_PIXEL = 2
 PIXEL_TYPE = "u2"  # uint16
 RGB_C_COUNT = 1
-INTERLEAVED = False
+INTERLEAVED = True
 USED_FILES = [
     IMG_PATH,
     os.path.join(THIS_DIR, "data", "plane.ome.tiff"),
