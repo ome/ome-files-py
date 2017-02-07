@@ -26,11 +26,8 @@
  * #L%
  */
 
-#ifndef OME_FILES_PY_ERRORS_H
-#define OME_FILES_PY_ERRORS_H
+#pragma once
 
 #include <Python.h>
 
 extern PyObject *OMEFilesPyError;
-
-#endif // OME_FILES_PY_ERRORS_H

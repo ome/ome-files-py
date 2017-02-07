@@ -26,8 +26,7 @@
  * #L%
  */
 
-#ifndef OME_FILES_PY_OMETIFFREADER_H
-#define OME_FILES_PY_OMETIFFREADER_H
+#pragma once
 
 #include <Python.h>
 #include <ome/files/FormatReader.h>
@@ -38,5 +37,3 @@ typedef struct {
 } PyOMETIFFReader;
 
 extern PyTypeObject PyOMETIFFReaderType;
-
-#endif // OME_FILES_PY_OMETIFFREADER_H
