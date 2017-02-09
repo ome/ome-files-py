@@ -86,7 +86,7 @@ class BuildExt(BaseBuildExt):
 
 ext = Extension(
     "ome_files",
-    sources=["src/ome_files.cpp"],
+    sources=["src/omefiles.cpp", "src/ometiffreader.cpp"],
     libraries=["ome-common", "ome-files", "ome-xml"],
     extra_compile_args=EXTRA_COMPILE_ARGS,
 )
