@@ -343,11 +343,11 @@ PyOMETIFFReader_getUsedFiles(PyOMETIFFReader *self, PyObject *args,
 static PyObject *
 PyOMETIFFReader_getOMEXML(PyOMETIFFReader *self) {
   try {
-    ome::compat::shared_ptr<ome::xml::meta::OMEXMLMetadata> meta(
+    auto meta =
       ome::compat::dynamic_pointer_cast<ome::xml::meta::OMEXMLMetadata>(
-        self->reader->getMetadataStore()));
+        self->reader->getMetadataStore());
     if (!meta) {
-      return PyString_FromString("");
+      Py_RETURN_NONE;
     }
     return PyString_FromString(meta->dumpXML().c_str());
   } catch (const std::exception& e) {
