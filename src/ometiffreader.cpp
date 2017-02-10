@@ -46,6 +46,14 @@
 static int
 PyOMETIFFReader_init(PyOMETIFFReader *self, PyObject *args, PyObject *kwds) {
   self->reader = ome::compat::make_shared<ome::files::in::OMETIFFReader>();
+  try {
+    ome::compat::shared_ptr<ome::xml::meta::MetadataStore> store(
+      ome::compat::make_shared<ome::xml::meta::OMEXMLMetadata>());
+    self->reader->setMetadataStore(store);
+  } catch (const std::exception& e) {
+    PyErr_SetString(OMEFilesPyError, e.what());
+    return -1;
+  }
   return 0;
 }
 
@@ -333,20 +341,6 @@ PyOMETIFFReader_getUsedFiles(PyOMETIFFReader *self, PyObject *args,
 
 
 static PyObject *
-PyOMETIFFReader_initMetadata(PyOMETIFFReader *self) {
-  try {
-    ome::compat::shared_ptr<ome::xml::meta::MetadataStore> store(
-      ome::compat::make_shared<ome::xml::meta::OMEXMLMetadata>());
-    self->reader->setMetadataStore(store);
-  } catch (const std::exception& e) {
-    PyErr_SetString(OMEFilesPyError, e.what());
-    return NULL;
-  }
-  Py_RETURN_NONE;
-}
-
-
-static PyObject *
 PyOMETIFFReader_getMetadata(PyOMETIFFReader *self) {
   try {
     ome::compat::shared_ptr<ome::xml::meta::OMEXMLMetadata> meta(
@@ -400,8 +394,6 @@ static PyMethodDef PyOMETIFFReader_methods[] = {
    METH_VARARGS | METH_KEYWORDS,
    "get_used_files(no_pixels=False): get the files used by this dataset. "
    "If no_pixels is False, exclude pixel data files"},
-  {"init_metadata", (PyCFunction)PyOMETIFFReader_initMetadata, METH_NOARGS,
-   "init_metadata(): initialize reader with an OME XML metadata store"},
   {"get_metadata", (PyCFunction)PyOMETIFFReader_getMetadata, METH_NOARGS,
    "get_metadata(): get OME XML metadata"},
   {NULL}  /* Sentinel */

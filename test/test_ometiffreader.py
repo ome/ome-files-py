@@ -164,8 +164,6 @@ class TestOMETiffReader(unittest.TestCase):
         self.assertRaises(ome_files.Error, self.reader.get_used_files)
 
     def test_metadata(self):
-        self.assertEqual(self.reader.get_metadata(), "")
-        self.reader.init_metadata()
         self.reader.set_id(IMG_PATH)
         self.assertTrue(self.reader.get_metadata().strip().startswith("<?xml"))
         self.reader.close()
