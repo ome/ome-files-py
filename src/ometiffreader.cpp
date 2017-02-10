@@ -341,7 +341,7 @@ PyOMETIFFReader_getUsedFiles(PyOMETIFFReader *self, PyObject *args,
 
 
 static PyObject *
-PyOMETIFFReader_getMetadata(PyOMETIFFReader *self) {
+PyOMETIFFReader_getOMEXML(PyOMETIFFReader *self) {
   try {
     ome::compat::shared_ptr<ome::xml::meta::OMEXMLMetadata> meta(
       ome::compat::dynamic_pointer_cast<ome::xml::meta::OMEXMLMetadata>(
@@ -394,8 +394,8 @@ static PyMethodDef PyOMETIFFReader_methods[] = {
    METH_VARARGS | METH_KEYWORDS,
    "get_used_files(no_pixels=False): get the files used by this dataset. "
    "If no_pixels is False, exclude pixel data files"},
-  {"get_metadata", (PyCFunction)PyOMETIFFReader_getMetadata, METH_NOARGS,
-   "get_metadata(): get OME XML metadata"},
+  {"get_ome_xml", (PyCFunction)PyOMETIFFReader_getOMEXML, METH_NOARGS,
+   "get_ome_xml(): get the OME XML metadata block"},
   {NULL}  /* Sentinel */
 };
 
