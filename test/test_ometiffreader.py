@@ -163,6 +163,11 @@ class TestOMETiffReader(unittest.TestCase):
         self.reader.close()
         self.assertRaises(ome_files.Error, self.reader.get_used_files)
 
+    def test_metadata(self):
+        self.reader.set_id(IMG_PATH)
+        self.assertTrue(self.reader.get_ome_xml().strip().startswith("<?xml"))
+        self.reader.close()
+
 
 def load_tests(loader, tests, pattern):
     test_cases = (TestOMETiffReader,)
