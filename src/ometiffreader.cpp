@@ -29,10 +29,10 @@
 #include <Python.h>
 
 #include <string>
+#include <memory>
 
 #include <boost/filesystem/path.hpp>
 
-#include <ome/compat/memory.h>
 #include <ome/files/in/OMETIFFReader.h>
 #include <ome/files/PixelProperties.h>
 #include <ome/xml/model/enums/PixelType.h>
@@ -45,10 +45,10 @@
 
 static int
 PyOMETIFFReader_init(PyOMETIFFReader *self, PyObject *args, PyObject *kwds) {
-  self->reader = ome::compat::make_shared<ome::files::in::OMETIFFReader>();
+  self->reader = std::make_shared<ome::files::in::OMETIFFReader>();
   try {
-    ome::compat::shared_ptr<ome::xml::meta::MetadataStore> store(
-      ome::compat::make_shared<ome::xml::meta::OMEXMLMetadata>());
+    std::shared_ptr<ome::xml::meta::MetadataStore> store(
+      std::make_shared<ome::xml::meta::OMEXMLMetadata>());
     self->reader->setMetadataStore(store);
   } catch (const std::exception& e) {
     PyErr_SetString(OMEFilesPyError, e.what());
@@ -344,7 +344,7 @@ static PyObject *
 PyOMETIFFReader_getOMEXML(PyOMETIFFReader *self) {
   try {
     auto meta =
-      ome::compat::dynamic_pointer_cast<ome::xml::meta::OMEXMLMetadata>(
+      std::dynamic_pointer_cast<ome::xml::meta::OMEXMLMetadata>(
         self->reader->getMetadataStore());
     if (!meta) {
       Py_RETURN_NONE;

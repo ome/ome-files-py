@@ -29,11 +29,12 @@
 #pragma once
 
 #include <Python.h>
+#include <memory>
 #include <ome/files/FormatReader.h>
 
 typedef struct {
     PyObject_HEAD
-    ome::compat::shared_ptr<ome::files::FormatReader> reader;
+    std::shared_ptr<ome::files::FormatReader> reader;
 } PyOMETIFFReader;
 
 extern PyTypeObject PyOMETIFFReaderType;
