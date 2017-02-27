@@ -85,10 +85,15 @@ class BuildExt(BaseBuildExt):
 
 
 ext = Extension(
-    "ome_files",
+    "ome_files._core",
     sources=["src/omefiles.cpp", "src/ometiffreader.cpp"],
     libraries=["ome-common", "ome-files", "ome-xml"],
     extra_compile_args=EXTRA_COMPILE_ARGS,
 )
 
-setup(name="ome_files", cmdclass={"build_ext": BuildExt}, ext_modules=[ext])
+setup(
+    name="ome_files",
+    packages=["ome_files"],
+    cmdclass={"build_ext": BuildExt},
+    ext_modules=[ext]
+)

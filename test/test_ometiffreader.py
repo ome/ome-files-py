@@ -168,6 +168,13 @@ class TestOMETiffReader(unittest.TestCase):
         self.assertTrue(self.reader.get_ome_xml().strip().startswith("<?xml"))
         self.reader.close()
 
+    def test_open_array(self):
+        self.reader.set_id(IMG_PATH)
+        img = self.reader.open_array(0)
+        self.assertTrue(hasattr(img, "shape"))
+        self.assertEqual(img.shape, (SIZE_Y, SIZE_X))
+        self.reader.close()
+
 
 def load_tests(loader, tests, pattern):
     test_cases = (TestOMETiffReader,)
