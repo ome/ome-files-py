@@ -29,6 +29,7 @@ import os
 import uuid
 import unittest
 
+import numpy as np
 import ome_files
 
 
@@ -173,6 +174,8 @@ class TestOMETiffReader(unittest.TestCase):
         img = self.reader.open_array(0)
         self.assertTrue(hasattr(img, "shape"))
         self.assertEqual(img.shape, (SIZE_Y, SIZE_X))
+        self.assertTrue(hasattr(img, "dtype"))
+        self.assertEqual(img.dtype, np.dtype(PIXEL_TYPE))
         self.reader.close()
 
 
