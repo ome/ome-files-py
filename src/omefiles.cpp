@@ -41,13 +41,13 @@ static PyMethodDef OMEFilesMethods[] = {
 
 
 PyMODINIT_FUNC
-initome_files(void) {
+init_core(void) {
   PyObject *m;
   PyOMETIFFReaderType.tp_new = PyType_GenericNew;
   if (PyType_Ready(&PyOMETIFFReaderType) < 0) {
     return;
   }
-  m = Py_InitModule3("ome_files", OMEFilesMethods, "OME Files wrapper");
+  m = Py_InitModule3("_core", OMEFilesMethods, "OME Files wrapper");
   if (!m) {
     return;
   }

@@ -29,6 +29,7 @@ import os
 import uuid
 import unittest
 
+import numpy as np
 import ome_files
 
 
@@ -166,6 +167,15 @@ class TestOMETiffReader(unittest.TestCase):
     def test_metadata(self):
         self.reader.set_id(IMG_PATH)
         self.assertTrue(self.reader.get_ome_xml().strip().startswith("<?xml"))
+        self.reader.close()
+
+    def test_open_array(self):
+        self.reader.set_id(IMG_PATH)
+        img = self.reader.open_array(0)
+        self.assertTrue(hasattr(img, "shape"))
+        self.assertEqual(img.shape, (SIZE_Y, SIZE_X))
+        self.assertTrue(hasattr(img, "dtype"))
+        self.assertEqual(img.dtype, np.dtype(PIXEL_TYPE))
         self.reader.close()
 
 

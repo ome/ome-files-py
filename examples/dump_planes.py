@@ -29,25 +29,11 @@ def dump(ome_tiff_fn):
     print "image size: %d x %d" % (W, H)
     print "pixel type:", dtype
     for i in xrange(img_count):
-        raw = reader.open_bytes(i)
-        pixels = np.fromstring(raw, dtype=dtype)
-        N = H * W
-        assert pixels.size == N * rgb
-        if rgb <= 1:
-            write_rgb = False
-            pixels = pixels.reshape((H, W))
-        else:
-            write_rgb = True
-            if interleaved:
-                pixels = [pixels[j: j+N*rgb: rgb].reshape((H, W))
-                          for j in xrange(rgb)]
-            else:
-                pixels = [pixels[N*j: N*(j+1)].reshape((H, W))
-                          for j in xrange(rgb)]
+        pixels = reader.open_array(i)
         out_fn = "plane_%d.tiff" % i
         print "writing %s" % out_fn
         with closing(TIFF.open(out_fn, mode="w")) as fo:
-            fo.write_image(pixels, write_rgb=write_rgb)
+            fo.write_image(pixels, write_rgb=(rgb > 1))
     reader.close()
 
 
