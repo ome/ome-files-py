@@ -45,6 +45,7 @@ SIZE_Y = 64
 SIZE_Z = 5
 SIZE_T = 4
 SIZE_C = 3
+DIMENSION_ORDER = "XYZCT"
 BYTES_PER_PIXEL = 2
 PIXEL_TYPE = "u2"  # uint16
 RGB_C_COUNT = 1
@@ -108,6 +109,40 @@ class TestOMETiffReader(unittest.TestCase):
         for dim in "xyztc":
             meth = getattr(self.reader, "get_size_%s" % dim)
             self.assertRaises(ome_files.Error, meth)
+
+    def test_dimension_order(self):
+        self.assertRaises(ome_files.Error, self.reader.get_dimension_order)
+        self.reader.set_id(IMG_PATH)
+        self.assertEqual(self.reader.get_dimension_order(), DIMENSION_ORDER)
+        self.reader.close()
+        self.assertRaises(ome_files.Error, self.reader.get_dimension_order)
+
+    def test_index(self):
+        self.assertRaises(ome_files.Error, self.reader.get_index, 0, 0, 0)
+        self.reader.set_id(IMG_PATH)
+        self.assertEqual(self.reader.get_index(0, 0, 0), 0)
+        self.assertRaises(ome_files.Error, self.reader.get_index, SIZE_Z, 0, 0)
+        self.assertRaises(ome_files.Error, self.reader.get_index, 0, SIZE_C, 0)
+        self.assertRaises(ome_files.Error, self.reader.get_index, 0, 0, SIZE_T)
+        self.reader.close()
+        self.assertRaises(ome_files.Error, self.reader.get_index, 0, 0, 0)
+
+    def test_zct_coords(self):
+        self.assertRaises(ome_files.Error, self.reader.get_zct_coords, 0)
+        self.reader.set_id(IMG_PATH)
+        self.assertEqual(self.reader.get_zct_coords(0), [0, 0, 0])
+        self.reader.close()
+        self.assertRaises(ome_files.Error, self.reader.get_zct_coords, 0)
+
+    def test_all_coords(self):
+        self.reader.set_id(IMG_PATH)
+        for z in xrange(SIZE_Z):
+            for c in xrange(SIZE_C):
+                for t in xrange(SIZE_T):
+                    index = self.reader.get_index(z, c, t)
+                    zct = self.reader.get_zct_coords(index)
+                    self.assertEqual(zct, [z, c, t])
+        self.reader.close()
 
     def test_pixel_type(self):
         self.assertRaises(ome_files.Error, self.reader.get_pixel_type)

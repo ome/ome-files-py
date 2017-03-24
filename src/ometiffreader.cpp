@@ -30,6 +30,7 @@
 
 #include <string>
 #include <memory>
+#include <array>
 
 #include <boost/filesystem/path.hpp>
 
@@ -198,6 +199,59 @@ PyOMETIFFReader_getSizeC(PyOMETIFFReader *self) {
     PyErr_SetString(OMEFilesPyError, e.what());
     return NULL;
   }
+}
+
+
+static PyObject *
+PyOMETIFFReader_getDimensionOrder(PyOMETIFFReader *self) {
+  try {
+    return PyString_FromString(self->reader->getDimensionOrder().c_str());
+  } catch (const std::exception& e) {
+    PyErr_SetString(OMEFilesPyError, e.what());
+    return NULL;
+  }
+}
+
+
+static PyObject *
+PyOMETIFFReader_getIndex(PyOMETIFFReader *self, PyObject *args) {
+  size_t z, c, t;
+  if (!PyArg_ParseTuple(args, "nnn", &z, &c, &t)) {
+    return NULL;
+  }
+  try {
+    return PyInt_FromSize_t(self->reader->getIndex(z, c, t));
+  } catch (const std::exception& e) {
+    PyErr_SetString(OMEFilesPyError, e.what());
+    return NULL;
+  }
+}
+
+
+static PyObject *
+PyOMETIFFReader_getZCTCoords(PyOMETIFFReader *self, PyObject *args) {
+  std::array<size_t, 3> zct;
+  size_t index;
+  if (!PyArg_ParseTuple(args, "n", &index)) {
+    return NULL;
+  }
+  try {
+    zct = self->reader->getZCTCoords(index);
+  } catch (const std::exception& e) {
+    PyErr_SetString(OMEFilesPyError, e.what());
+    return NULL;
+  }
+  PyObject* ret = PyList_New(0);
+  if (ret == NULL) {
+    return NULL;
+  }
+  for (const auto &coord : zct) {
+    if (PyList_Append(ret, PyInt_FromSize_t(coord)) < 0) {
+      Py_DECREF(ret);
+      return NULL;
+    }
+  }
+  return ret;
 }
 
 
@@ -381,6 +435,16 @@ static PyMethodDef PyOMETIFFReader_methods[] = {
    "get_size_t(): get the size of the T dimension"},
   {"get_size_c", (PyCFunction)PyOMETIFFReader_getSizeC, METH_NOARGS,
    "get_size_c(): get the size of the C dimension"},
+  {"get_dimension_order", (PyCFunction)PyOMETIFFReader_getDimensionOrder,
+   METH_NOARGS, "get_dimension_order(): get a five-character string "
+   "representing the order in which planes will be returned"},
+  {"get_index", (PyCFunction)PyOMETIFFReader_getIndex,
+   METH_VARARGS, "get_index(z, c, t): "
+   "get the plane index corresponding to the given ZCT coordinates"},
+  {"get_zct_coords", (PyCFunction)PyOMETIFFReader_getZCTCoords,
+   METH_VARARGS, "get_zct_coords(index): "
+   "get the ZCT coordinates for the given plane index"
+   "get the plane index corresponding to the given ZCT coordinates"},
   {"get_pixel_type", (PyCFunction)PyOMETIFFReader_getPixelType, METH_NOARGS,
    "get_pixel_type(): get the pixel type"},
   {"get_rgb_channel_count", (PyCFunction)PyOMETIFFReader_getRGBChannelCount,
