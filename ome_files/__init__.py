@@ -28,6 +28,10 @@ import numpy as np
 
 import _core
 from _core import Error
+try:
+    from ome_files.version import version as __version__
+except ImportError:
+    __version__ = None
 
 
 __all__ = ["OMETIFFReader", "Error"]
