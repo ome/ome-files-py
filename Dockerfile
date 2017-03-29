@@ -1,4 +1,4 @@
-FROM openmicroscopy/ome-files-cpp-u1604
+FROM openmicroscopy/ome-files-cpp-u1604:0.3.2
 MAINTAINER ome-devel@lists.openmicroscopy.org.uk
 
 RUN pip install numpy
