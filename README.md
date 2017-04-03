@@ -5,3 +5,15 @@ Python bindings for https://github.com/ome/ome-files-cpp
 
 * Build the C++ libraries (`ome-common`, `ome-files`, `ome-xml`) and install them to a `PREFIX`
 * Run `python setup.py build_ext -I${PREFIX}/include -L${PREFIX}/lib -R${PREFIX}/lib` followed by `python setup.py build`
+
+Alternatively, you can use the [ome-files-py Docker image](https://hub.docker.com/r/openmicroscopy/ome-files-py).
+
+## Examples
+
+To run the Jupyter notebook under `examples`, you can use the [ome-files-jupyter Docker image](https://hub.docker.com/r/openmicroscopy/ome-files-jupyter).
+
+`dump_planes.py` is a sample script that reads an OME-TIFF file and writes one plain TIFF image for each plane in the input file. For instance, from the `examples` directory, you can run:
+
+```
+python dump_planes.py ../test/data/multi-channel-4D-series.companion.ome
+```
