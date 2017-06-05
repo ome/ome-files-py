@@ -44,6 +44,13 @@
 #include "errors.h"
 
 
+#if PY_MAJOR_VERSION >= 3
+#define PyInt_FromSize_t PyLong_FromSize_t
+#define PyString_FromString PyBytes_FromString
+#define PyString_FromStringAndSize PyBytes_FromStringAndSize
+#endif
+
+
 static int
 PyOMETIFFReader_init(PyOMETIFFReader *self, PyObject *args, PyObject *kwds) {
   self->reader = std::make_shared<ome::files::in::OMETIFFReader>();
@@ -205,7 +212,7 @@ PyOMETIFFReader_getSizeC(PyOMETIFFReader *self) {
 static PyObject *
 PyOMETIFFReader_getDimensionOrder(PyOMETIFFReader *self) {
   try {
-    return PyString_FromString(self->reader->getDimensionOrder().c_str());
+    return PyUnicode_FromString(self->reader->getDimensionOrder().c_str());
   } catch (const std::exception& e) {
     PyErr_SetString(OMEFilesPyError, e.what());
     return NULL;
@@ -290,7 +297,7 @@ PyOMETIFFReader_getPixelType(PyOMETIFFReader *self) {
     PyErr_SetString(OMEFilesPyError, e.what());
     return NULL;
   }
-  return PyString_FromString(numpy_pt);
+  return PyUnicode_FromString(numpy_pt);
 }
 
 
@@ -378,7 +385,7 @@ PyOMETIFFReader_getUsedFiles(PyOMETIFFReader *self, PyObject *args,
   }
   PyObject *fname;
   for (const auto &f : files) {
-    fname = PyString_FromString(f.string().c_str());
+    fname = PyUnicode_FromString(f.string().c_str());
     if (fname == NULL) {
       PyErr_SetString(PyExc_RuntimeError, "string creation failed");
       Py_DECREF(file_list);
@@ -403,7 +410,7 @@ PyOMETIFFReader_getOMEXML(PyOMETIFFReader *self) {
     if (!meta) {
       Py_RETURN_NONE;
     }
-    return PyString_FromString(meta->dumpXML().c_str());
+    return PyUnicode_FromString(meta->dumpXML().c_str());
   } catch (const std::exception& e) {
     PyErr_SetString(OMEFilesPyError, e.what());
     return NULL;
@@ -465,8 +472,7 @@ static PyMethodDef PyOMETIFFReader_methods[] = {
 
 
 PyTypeObject PyOMETIFFReaderType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                                                /* ob_size */
+    PyVarObject_HEAD_INIT(NULL, 0)
     "ome_files.OMETIFFReader",                        /* tp_name */
     sizeof(PyOMETIFFReader),                          /* tp_basicsize */
     0,                                                /* tp_itemsize */

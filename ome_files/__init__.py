@@ -24,10 +24,14 @@
 # POSSIBILITY OF SUCH DAMAGE.
 # #L%
 
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals
+)
+
 import numpy as np
 
-import _core
-from _core import Error
+from . import _core
+from ._core import Error
 try:
     from ome_files.version import version as __version__
 except ImportError:
