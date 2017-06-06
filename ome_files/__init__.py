@@ -61,8 +61,8 @@ class OMETIFFReader(_core.OMETIFFReader):
         else:
             if interleaved:
                 pixels = [pixels[j: j+N*rgb: rgb].reshape((H, W))
-                          for j in xrange(rgb)]
+                          for j in range(rgb)]
             else:
                 pixels = [pixels[N*j: N*(j+1)].reshape((H, W))
-                          for j in xrange(rgb)]
+                          for j in range(rgb)]
         return pixels
