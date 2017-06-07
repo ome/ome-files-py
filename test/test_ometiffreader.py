@@ -24,6 +24,10 @@
 # POSSIBILITY OF SUCH DAMAGE.
 # #L%
 
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals
+)
+
 import sys
 import os
 import uuid
@@ -57,7 +61,11 @@ USED_FILES = [
 
 
 class NotABool(object):
+
     def __nonzero__(self):
+        raise NotImplementedError("truth value is undefined")
+
+    def __bool__(self):
         raise NotImplementedError("truth value is undefined")
 
 
@@ -136,9 +144,9 @@ class TestOMETiffReader(unittest.TestCase):
 
     def test_all_coords(self):
         self.reader.set_id(IMG_PATH)
-        for z in xrange(SIZE_Z):
-            for c in xrange(SIZE_C):
-                for t in xrange(SIZE_T):
+        for z in range(SIZE_Z):
+            for c in range(SIZE_C):
+                for t in range(SIZE_T):
                     index = self.reader.get_index(z, c, t)
                     zct = self.reader.get_zct_coords(index)
                     self.assertEqual(zct, [z, c, t])

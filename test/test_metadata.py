@@ -92,7 +92,7 @@ class TestOMEXMLMetadata(unittest.TestCase):
     def test_map_annotations(self):
         annotations = self.meta.get_map_annotations()
         self.assertEqual(len(annotations), 2)
-        for id, ann in self.__by_id(annotations).iteritems():
+        for id, ann in self.__by_id(annotations).items():
             self.__check_annotation(ann, id)
             self.assertEqual(ann.Value, {
                 "K%s0" % id: ["V%s0.0" % id, "V%s0.1" % id],
@@ -102,7 +102,7 @@ class TestOMEXMLMetadata(unittest.TestCase):
     def test_xml_annotations(self):
         annotations = self.meta.get_xml_annotations()
         self.assertEqual(len(annotations), 1)
-        for id, ann in self.__by_id(annotations).iteritems():
+        for id, ann in self.__by_id(annotations).items():
             self.__check_annotation(ann, id)
         children = ofmd.get_children(ann.Value)
         self.assertEqual(set(_.nodeName for _ in children),

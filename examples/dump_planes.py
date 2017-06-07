@@ -4,6 +4,10 @@
 Open an OME-TIFF file and dump each plane to an individual TIFF file.
 """
 
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals
+)
+
 import sys
 import argparse
 from contextlib import closing
@@ -22,16 +26,16 @@ def dump(ome_tiff_fn):
     dtype = np.dtype(reader.get_pixel_type())
     rgb = reader.get_rgb_channel_count(0)
     interleaved = reader.is_interleaved(0)
-    print "image count: %d" % img_count
-    print "RGB sub-channels: %d (%sinterleaved)" % (
+    print("image count: %d" % img_count)
+    print("RGB sub-channels: %d (%sinterleaved)" % (
         rgb, "" if interleaved else "non-"
-    )
-    print "image size: %d x %d" % (W, H)
-    print "pixel type:", dtype
-    for i in xrange(img_count):
+    ))
+    print("image size: %d x %d" % (W, H))
+    print("pixel type:", dtype)
+    for i in range(img_count):
         pixels = reader.open_array(i)
         out_fn = "plane_%d.tiff" % i
-        print "writing %s" % out_fn
+        print("writing %s" % out_fn)
         with closing(TIFF.open(out_fn, mode="w")) as fo:
             fo.write_image(pixels, write_rgb=(rgb > 1))
     reader.close()

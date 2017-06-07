@@ -31,6 +31,12 @@
 #include "ometiffreader.h"
 #include "errors.h"
 
+#if PY_MAJOR_VERSION >= 3
+#define PY3
+#define INIT_RETURN(V) return V;
+#else
+#define INIT_RETURN(V) return;
+#endif
 
 PyObject *OMEFilesPyError;
 
@@ -40,16 +46,39 @@ static PyMethodDef OMEFilesMethods[] = {
 };
 
 
+#ifdef PY3
+static struct PyModuleDef module_def = {
+  PyModuleDef_HEAD_INIT,
+  "_core",
+  "OME Files wrapper",
+  0,
+  OMEFilesMethods,
+  NULL,
+  NULL,
+  NULL,
+  NULL
+};
+#endif
+
+
 PyMODINIT_FUNC
+#ifdef PY3
+PyInit__core(void) {
+#else
 init_core(void) {
+#endif
   PyObject *m;
   PyOMETIFFReaderType.tp_new = PyType_GenericNew;
   if (PyType_Ready(&PyOMETIFFReaderType) < 0) {
-    return;
+    INIT_RETURN(NULL);;
   }
+#ifdef PY3
+  m = PyModule_Create(&module_def);
+#else
   m = Py_InitModule3("_core", OMEFilesMethods, "OME Files wrapper");
+#endif
   if (!m) {
-    return;
+    INIT_RETURN(NULL);;
   }
   Py_INCREF(&PyOMETIFFReaderType);
   PyModule_AddObject(m, "OMETIFFReader", (PyObject *)&PyOMETIFFReaderType);
@@ -59,4 +88,5 @@ init_core(void) {
     Py_INCREF(OMEFilesPyError);
     PyModule_AddObject(m, "Error", OMEFilesPyError);
   }
+  INIT_RETURN(m);
 }
