@@ -24,6 +24,10 @@
 # POSSIBILITY OF SUCH DAMAGE.
 # #L%
 
+from __future__ import (
+    absolute_import, division, print_function, unicode_literals
+)
+
 import sys
 import unittest
 
@@ -107,6 +111,15 @@ class TestOMEXMLMetadata(unittest.TestCase):
         children = ofmd.get_children(ann.Value)
         self.assertEqual(set(_.nodeName for _ in children),
                          set(("This", "Can", "Be")))
+
+    def test_unicode(self):
+        nonascii = "\N{CYRILLIC CAPITAL LETTER O WITH DIAERESIS}"
+        try:
+            meta = ofmd.OMEXMLMetadata(XML.replace("D0", nonascii))
+        except UnicodeEncodeError:
+            self.fail("Cannot construct OMEXMLMetadata from xml string")
+        by_id = self.__by_id(meta.get_map_annotations())
+        self.assertEqual(by_id["0"].Description, nonascii)
 
 
 def load_tests(loader, tests, pattern):
