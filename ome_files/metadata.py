@@ -24,6 +24,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 # #L%
 
+import sys
 import xml.dom.minidom as minidom
 TEXT_NODE = minidom.Node.TEXT_NODE
 
@@ -112,6 +113,8 @@ class XMLAnnotation(Annotation):
 class OMEXMLMetadata(object):
 
     def __init__(self, xml_string):
+        if sys.version_info < (3,):
+            xml_string = xml_string.encode("utf-8")
         self.doc = minidom.parseString(xml_string)
 
     def get_map_annotations(self):
