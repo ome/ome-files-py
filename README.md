@@ -10,10 +10,10 @@ Alternatively, you can use the [ome-files-py Docker image](https://hub.docker.co
 
 ## Examples
 
-To run the Jupyter notebook under `examples`, you can use the [ome-files-jupyter Docker image](https://hub.docker.com/r/openmicroscopy/ome-files-jupyter).
-
 `dump_planes.py` is a sample script that reads an OME-TIFF file and writes one plain TIFF image for each plane in the input file. For instance, from the `examples` directory, you can run:
 
 ```
 python dump_planes.py ../test/data/multi-channel-4D-series.companion.ome
 ```
+
+You can also run a sample Jupyter notebook with the [ome-files-jupyter Docker image](https://hub.docker.com/r/openmicroscopy/ome-files-jupyter). See https://github.com/openmicroscopy/ome-files-jupyter-docker for instructions.
