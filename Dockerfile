@@ -5,8 +5,10 @@ RUN apt-get install -y python3-dev python3-pip
 
 RUN pip3 install --upgrade pip
 
+RUN pip2 install pybind11
 RUN pip2 install numpy
 RUN pip2 install libtiff
+RUN pip3 install pybind11
 RUN pip3 install numpy
 RUN pip3 install git+git://github.com/pearu/pylibtiff
 
