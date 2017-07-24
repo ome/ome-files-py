@@ -30,6 +30,8 @@
 #include <pybind11/stl.h>
 #include <string>
 #include <vector>
+#include <cstdint>
+#include <ome/files/Version.h>
 #include <ome/files/in/OMETIFFReader.h>
 #include <ome/xml/meta/MetadataStore.h>
 #include <ome/xml/meta/OMEXMLMetadata.h>
@@ -40,6 +42,13 @@ using ome::files::in::OMETIFFReader;
 
 PYBIND11_PLUGIN(_core) {
   py::module m("_core");
+  py::class_<ome::files::Version>(m, "Version")
+    .def(py::init<uint32_t, uint32_t, uint32_t, const std::string &>())
+    .def_readonly("major", &ome::files::Version::major)
+    .def_readonly("minor", &ome::files::Version::minor)
+    .def_readonly("patch", &ome::files::Version::patch)
+    .def_readonly("extra", &ome::files::Version::extra);
+  m.attr("version_info") = ome::files::release_version;
   py::class_<OMETIFFReader>(m, "OMETIFFReader")
     .def("__init__", [](OMETIFFReader &r) {
 	new (&r) OMETIFFReader();

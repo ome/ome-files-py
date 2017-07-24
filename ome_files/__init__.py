@@ -27,6 +27,7 @@
 from __future__ import (
     absolute_import, division, print_function, unicode_literals
 )
+from collections import namedtuple
 
 import numpy as np
 
@@ -37,7 +38,29 @@ except ImportError:
     __version__ = None
 
 
-__all__ = ["OMETIFFReader"]
+__all__ = [
+    "OMETIFFReader"
+    "Version",
+    "upstream_version",
+    "upstream_version_info",
+]
+
+
+class Version(namedtuple("Version", ["major", "minor", "patch", "extra"])):
+
+    __slots__ = ()
+
+    def __str__(self):
+        return "%d.%d.%d%s" % self
+
+
+upstream_version_info = Version(
+    _core.version_info.major,
+    _core.version_info.minor,
+    _core.version_info.patch,
+    _core.version_info.extra,
+)
+upstream_version = str(upstream_version_info)
 
 
 class OMETIFFReader(_core.OMETIFFReader):
