@@ -36,6 +36,8 @@ from distutils.sysconfig import customize_compiler
 from distutils.errors import DistutilsSetupError
 from distutils.dep_util import newer
 
+import pybind11
+
 
 EXTRA_COMPILE_ARGS = ['-std=c++11'] if platform.system != "Windows" else []
 VERSION_FILE = "VERSION"
@@ -113,8 +115,9 @@ class Build(BaseBuild):
 
 ext = Extension(
     "ome_files._core",
-    sources=["src/omefiles.cpp", "src/ometiffreader.cpp"],
+    sources=["src/omefiles.cpp"],
     libraries=["ome-common", "ome-files", "ome-xml"],
+    include_dirs=[pybind11.get_include(), pybind11.get_include(user=True)],
     extra_compile_args=EXTRA_COMPILE_ARGS,
 )
 

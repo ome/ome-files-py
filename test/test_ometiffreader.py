@@ -79,34 +79,34 @@ class TestOMETiffReader(unittest.TestCase):
         self.reader = ome_files.OMETIFFReader()
 
     def test_image_count(self):
-        self.assertRaises(ome_files.Error, self.reader.get_image_count)
+        self.assertRaises(RuntimeError, self.reader.get_image_count)
         self.reader.set_id(IMG_PATH)
         self.assertEqual(self.reader.get_image_count(), IMAGE_COUNT)
         self.reader.close(file_only=True)
         self.assertEqual(self.reader.get_image_count(), IMAGE_COUNT)
         self.reader.close()
-        self.assertRaises(ome_files.Error, self.reader.get_image_count)
+        self.assertRaises(RuntimeError, self.reader.get_image_count)
 
     def test_series_count(self):
-        self.assertRaises(ome_files.Error, self.reader.get_series_count)
+        self.assertRaises(RuntimeError, self.reader.get_series_count)
         self.reader.set_id(IMG_PATH)
         self.assertEqual(self.reader.get_series_count(), SERIES_COUNT)
         self.reader.close()
-        self.assertRaises(ome_files.Error, self.reader.get_series_count)
+        self.assertRaises(RuntimeError, self.reader.get_series_count)
 
     def test_series(self):
-        self.assertRaises(ome_files.Error, self.reader.set_series, 0)
+        self.assertRaises(RuntimeError, self.reader.set_series, 0)
         self.reader.set_id(IMG_PATH)
         self.assertRaises(TypeError, self.reader.set_series, 0.)
         self.reader.set_series(0)
         self.assertEqual(self.reader.get_series(), 0)
         self.reader.close()
-        self.assertRaises(ome_files.Error, self.reader.set_series, 0)
+        self.assertRaises(RuntimeError, self.reader.set_series, 0)
 
     def test_dimensions(self):
         for dim in "xyztc":
             meth = getattr(self.reader, "get_size_%s" % dim)
-            self.assertRaises(ome_files.Error, meth)
+            self.assertRaises(RuntimeError, meth)
         self.reader.set_id(IMG_PATH)
         self.assertEqual(self.reader.get_size_x(), SIZE_X)
         self.assertEqual(self.reader.get_size_y(), SIZE_Y)
@@ -116,31 +116,31 @@ class TestOMETiffReader(unittest.TestCase):
         self.reader.close()
         for dim in "xyztc":
             meth = getattr(self.reader, "get_size_%s" % dim)
-            self.assertRaises(ome_files.Error, meth)
+            self.assertRaises(RuntimeError, meth)
 
     def test_dimension_order(self):
-        self.assertRaises(ome_files.Error, self.reader.get_dimension_order)
+        self.assertRaises(RuntimeError, self.reader.get_dimension_order)
         self.reader.set_id(IMG_PATH)
         self.assertEqual(self.reader.get_dimension_order(), DIMENSION_ORDER)
         self.reader.close()
-        self.assertRaises(ome_files.Error, self.reader.get_dimension_order)
+        self.assertRaises(RuntimeError, self.reader.get_dimension_order)
 
     def test_index(self):
-        self.assertRaises(ome_files.Error, self.reader.get_index, 0, 0, 0)
+        self.assertRaises(RuntimeError, self.reader.get_index, 0, 0, 0)
         self.reader.set_id(IMG_PATH)
         self.assertEqual(self.reader.get_index(0, 0, 0), 0)
-        self.assertRaises(ome_files.Error, self.reader.get_index, SIZE_Z, 0, 0)
-        self.assertRaises(ome_files.Error, self.reader.get_index, 0, SIZE_C, 0)
-        self.assertRaises(ome_files.Error, self.reader.get_index, 0, 0, SIZE_T)
+        self.assertRaises(IndexError, self.reader.get_index, SIZE_Z, 0, 0)
+        self.assertRaises(IndexError, self.reader.get_index, 0, SIZE_C, 0)
+        self.assertRaises(IndexError, self.reader.get_index, 0, 0, SIZE_T)
         self.reader.close()
-        self.assertRaises(ome_files.Error, self.reader.get_index, 0, 0, 0)
+        self.assertRaises(RuntimeError, self.reader.get_index, 0, 0, 0)
 
     def test_zct_coords(self):
-        self.assertRaises(ome_files.Error, self.reader.get_zct_coords, 0)
+        self.assertRaises(RuntimeError, self.reader.get_zct_coords, 0)
         self.reader.set_id(IMG_PATH)
         self.assertEqual(self.reader.get_zct_coords(0), [0, 0, 0])
         self.reader.close()
-        self.assertRaises(ome_files.Error, self.reader.get_zct_coords, 0)
+        self.assertRaises(RuntimeError, self.reader.get_zct_coords, 0)
 
     def test_all_coords(self):
         self.reader.set_id(IMG_PATH)
@@ -153,15 +153,15 @@ class TestOMETiffReader(unittest.TestCase):
         self.reader.close()
 
     def test_pixel_type(self):
-        self.assertRaises(ome_files.Error, self.reader.get_pixel_type)
+        self.assertRaises(RuntimeError, self.reader.get_pixel_type)
         self.reader.set_id(IMG_PATH)
         self.assertEqual(self.reader.get_pixel_type(), PIXEL_TYPE)
         self.reader.close()
-        self.assertRaises(ome_files.Error, self.reader.get_pixel_type)
+        self.assertRaises(RuntimeError, self.reader.get_pixel_type)
 
     def test_bad_id(self):
         filename = str(uuid.uuid4())
-        self.assertRaises(ome_files.Error, self.reader.set_id, filename)
+        self.assertRaises(RuntimeError, self.reader.set_id, filename)
         self.assertRaises(TypeError, self.reader.set_id, 0)
 
     def test_bad_close(self):
@@ -170,34 +170,34 @@ class TestOMETiffReader(unittest.TestCase):
         self.reader.close()
 
     def test_rgb_channel_count(self):
-        self.assertRaises(ome_files.Error,
+        self.assertRaises(RuntimeError,
                           self.reader.get_rgb_channel_count, 0)
         self.reader.set_id(IMG_PATH)
         self.assertRaises(TypeError, self.reader.get_rgb_channel_count, 0.)
         self.assertEqual(self.reader.get_rgb_channel_count(0), RGB_C_COUNT)
         self.reader.close()
-        self.assertRaises(ome_files.Error,
+        self.assertRaises(RuntimeError,
                           self.reader.get_rgb_channel_count, 0)
 
     def test_interleaved(self):
-        self.assertRaises(ome_files.Error, self.reader.is_interleaved, 0)
+        self.assertRaises(RuntimeError, self.reader.is_interleaved, 0)
         self.reader.set_id(IMG_PATH)
         self.assertRaises(TypeError, self.reader.is_interleaved, 0.)
         self.assertEqual(self.reader.is_interleaved(0), INTERLEAVED)
         self.reader.close()
-        self.assertRaises(ome_files.Error, self.reader.is_interleaved, 0)
+        self.assertRaises(RuntimeError, self.reader.is_interleaved, 0)
 
     def test_open_bytes(self):
-        self.assertRaises(ome_files.Error, self.reader.open_bytes, 0)
+        self.assertRaises(RuntimeError, self.reader.open_bytes, 0)
         self.reader.set_id(IMG_PATH)
         self.assertRaises(TypeError, self.reader.open_bytes, 0.)
         raw = self.reader.open_bytes(0)
         self.assertEqual(len(raw), SIZE_X * SIZE_Y * BYTES_PER_PIXEL)
         self.reader.close()
-        self.assertRaises(ome_files.Error, self.reader.open_bytes, 0)
+        self.assertRaises(RuntimeError, self.reader.open_bytes, 0)
 
     def test_used_files(self):
-        self.assertRaises(ome_files.Error, self.reader.get_used_files)
+        self.assertRaises(RuntimeError, self.reader.get_used_files)
         self.reader.set_id(IMG_PATH)
         self.assertRaises(TypeError, self.reader.get_used_files, NotABool())
         fnames = self.reader.get_used_files()
@@ -205,7 +205,7 @@ class TestOMETiffReader(unittest.TestCase):
         self.assertPathsEqualNoOrder(fnames, USED_FILES)
         self.assertEqual(len(self.reader.get_used_files(no_pixels=True)), 0)
         self.reader.close()
-        self.assertRaises(ome_files.Error, self.reader.get_used_files)
+        self.assertRaises(RuntimeError, self.reader.get_used_files)
 
     def test_metadata(self):
         self.reader.set_id(IMG_PATH)

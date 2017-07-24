@@ -31,14 +31,13 @@ from __future__ import (
 import numpy as np
 
 from . import _core
-from ._core import Error
 try:
     from ome_files.version import version as __version__
 except ImportError:
     __version__ = None
 
 
-__all__ = ["OMETIFFReader", "Error"]
+__all__ = ["OMETIFFReader"]
 
 
 class OMETIFFReader(_core.OMETIFFReader):
