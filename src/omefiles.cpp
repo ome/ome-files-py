@@ -63,41 +63,41 @@ PYBIND11_PLUGIN(_core) {
     .def("set_series", [](OMETIFFReader &r, size_t series) {
         r.setSeries(series);
       }, "Set the active series.")
-    .def("get_series", [](OMETIFFReader &r) {
+    .def("get_series", [](const OMETIFFReader &r) {
         return r.getSeries();
       }, "Get the active series.")
-    .def("get_image_count", [](OMETIFFReader &r) {
+    .def("get_image_count", [](const OMETIFFReader &r) {
 	return r.getImageCount();
       }, "Get the number of image planes in the current series.")
-    .def("get_series_count", [](OMETIFFReader &r) {
+    .def("get_series_count", [](const OMETIFFReader &r) {
         return r.getSeriesCount();
       }, "Get the number of image series.")
-    .def("get_size_x", [](OMETIFFReader &r) {
+    .def("get_size_x", [](const OMETIFFReader &r) {
 	return r.getSizeX();
       }, "Get the size of the X dimension.")
-    .def("get_size_y", [](OMETIFFReader &r) {
+    .def("get_size_y", [](const OMETIFFReader &r) {
         return r.getSizeY();
       }, "Get the size of the Y dimension.")
-    .def("get_size_z", [](OMETIFFReader &r) {
+    .def("get_size_z", [](const OMETIFFReader &r) {
         return r.getSizeZ();
       }, "Get the size of the Z dimension.")
-    .def("get_size_t", [](OMETIFFReader &r) {
+    .def("get_size_t", [](const OMETIFFReader &r) {
         return r.getSizeT();
       }, "Get the size of the T dimension.")
-    .def("get_size_c", [](OMETIFFReader &r) {
+    .def("get_size_c", [](const OMETIFFReader &r) {
         return r.getSizeC();
       }, "Get the size of the C dimension.")
-    .def("get_dimension_order", [](OMETIFFReader &r) {
+    .def("get_dimension_order", [](const OMETIFFReader &r) {
         return r.getDimensionOrder();
       }, "Get a five-character string representing the order in which "
       "planes will be returned.")
-    .def("get_index", [](OMETIFFReader &r, size_t z, size_t c, size_t t) {
+    .def("get_index", [](const OMETIFFReader &r, size_t z, size_t c, size_t t) {
 	return r.getIndex(z, c, t);
       }, "Get the plane index corresponding to the given ZCT coordinates.")
-    .def("get_zct_coords", [](OMETIFFReader &r, size_t index) {
+    .def("get_zct_coords", [](const OMETIFFReader &r, size_t index) {
 	return r.getZCTCoords(index);
       }, "Get the ZCT coordinates for the given plane index.")
-    .def("get_rgb_channel_count", [](OMETIFFReader &r, size_t channel) {
+    .def("get_rgb_channel_count", [](const OMETIFFReader &r, size_t channel) {
 	return r.getRGBChannelCount(channel);
       }, "Get the number of sub-channels for the given channel.")
     .def("is_interleaved",
@@ -106,7 +106,7 @@ PYBIND11_PLUGIN(_core) {
     .def("is_interleaved",
 	 (bool (OMETIFFReader::*)() const) &OMETIFFReader::isInterleaved,
 	 "Whether or not the channels are interleaved")
-    .def("get_pixel_type", [](OMETIFFReader &r) {
+    .def("get_pixel_type", [](const OMETIFFReader &r) {
 	switch(r.getPixelType()) {
 	case ome::xml::model::enums::PixelType::INT8:
 	  return "i1";
@@ -134,7 +134,7 @@ PYBIND11_PLUGIN(_core) {
 	  throw std::invalid_argument("unknown pixel type");
 	}
       }, "Get the pixel type.")
-    .def("open_bytes", [](OMETIFFReader &r, size_t plane) {
+    .def("open_bytes", [](const OMETIFFReader &r, size_t plane) {
 	ome::files::VariantPixelBuffer buf;
 	r.openBytes(plane, buf);
 	return py::bytes(std::string(
@@ -142,7 +142,7 @@ PYBIND11_PLUGIN(_core) {
           buf.num_elements() * ome::files::bytesPerPixel(buf.pixelType())
 	));
       }, "Obtain the image plane for the given index.")
-    .def("get_used_files", [](OMETIFFReader &r, bool noPixels = false) {
+    .def("get_used_files", [](const OMETIFFReader &r, bool noPixels = false) {
 	std::vector<std::string> fnames;
 	for (const auto &f : r.getUsedFiles(noPixels)) {
 	  fnames.push_back(f.string());
@@ -151,7 +151,7 @@ PYBIND11_PLUGIN(_core) {
       }, "Get the files used by this dataset. "
       "If no_pixels is False, exclude pixel data files.",
       py::arg("no_pixels") = false)
-    .def("get_ome_xml", [](OMETIFFReader &r) {
+    .def("get_ome_xml", [](const OMETIFFReader &r) {
 	auto meta = std::dynamic_pointer_cast<ome::xml::meta::OMEXMLMetadata>(
           r.getMetadataStore()
         );
