@@ -26,18 +26,23 @@
  * #L%
  */
 
-#include <pybind11/pybind11.h>
+#include <string>
+#include <cstdint>
+#include <ome/files/Version.h>
 
-#include "ometiffreader.h"
 #include "version.h"
 
 
 namespace py = pybind11;
+using ome::files::Version;
 
 
-PYBIND11_PLUGIN(_core) {
-  py::module m("_core");
-  init_ometiffreader(m);
-  init_version(m);
-  return m.ptr();
+void init_version(py::module &m) {
+  py::class_<Version>(m, "Version")
+    .def(py::init<uint32_t, uint32_t, uint32_t, const std::string &>())
+    .def_readonly("major", &Version::major)
+    .def_readonly("minor", &Version::minor)
+    .def_readonly("patch", &Version::patch)
+    .def_readonly("extra", &Version::extra);
+  m.attr("version_info") = ome::files::release_version;
 }

@@ -28,16 +28,5 @@
 
 #include <pybind11/pybind11.h>
 
-#include "ometiffreader.h"
-#include "version.h"
 
-
-namespace py = pybind11;
-
-
-PYBIND11_PLUGIN(_core) {
-  py::module m("_core");
-  init_ometiffreader(m);
-  init_version(m);
-  return m.ptr();
-}
+void init_version(pybind11::module &m);
