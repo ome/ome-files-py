@@ -26,20 +26,51 @@
  * #L%
  */
 
-#include <pybind11/pybind11.h>
+/*─────────────────────────────────────────────────────────────────────────────
+ *
+ * THIS IS AUTOMATICALLY GENERATED CODE.  DO NOT MODIFY.
+ *
+ *─────────────────────────────────────────────────────────────────────────────
+ */
 
-#include "ometiffreader.h"
-#include "version.h"
 #include "enums.h"
 
 
 namespace py = pybind11;
 
 
-PYBIND11_PLUGIN(_core) {
-  py::module m("_core");
-  init_ometiffreader(m);
-  init_version(m);
-  init_enums(m);
-  return m.ptr();
+void init_enums(py::module &m) {
+  py::module subm = m.def_submodule("enums");
+  init_acquisitionmode(subm);
+  init_arctype(subm);
+  init_binning(subm);
+  init_compression(subm);
+  init_contrastmethod(subm);
+  init_correction(subm);
+  init_detectortype(subm);
+  init_dimensionorder(subm);
+  init_experimenttype(subm);
+  init_filamenttype(subm);
+  init_fillrule(subm);
+  init_filtertype(subm);
+  init_fontfamily(subm);
+  init_fontstyle(subm);
+  init_illuminationtype(subm);
+  init_immersion(subm);
+  init_lasermedium(subm);
+  init_lasertype(subm);
+  init_marker(subm);
+  init_medium(subm);
+  init_microbeammanipulationtype(subm);
+  init_microscopetype(subm);
+  init_namingconvention(subm);
+  init_pixeltype(subm);
+  init_pulse(subm);
+  init_unitselectricpotential(subm);
+  init_unitsfrequency(subm);
+  init_unitslength(subm);
+  init_unitspower(subm);
+  init_unitspressure(subm);
+  init_unitstemperature(subm);
+  init_unitstime(subm);
 }
