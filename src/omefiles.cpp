@@ -26,67 +26,18 @@
  * #L%
  */
 
-#include <Python.h>
+#include <pybind11/pybind11.h>
 
 #include "ometiffreader.h"
-#include "errors.h"
-
-#if PY_MAJOR_VERSION >= 3
-#define PY3
-#define INIT_RETURN(V) return V;
-#else
-#define INIT_RETURN(V) return;
-#endif
-
-PyObject *OMEFilesPyError;
+#include "version.h"
 
 
-static PyMethodDef OMEFilesMethods[] = {
-  {NULL}  /* Sentinel */
-};
+namespace py = pybind11;
 
 
-#ifdef PY3
-static struct PyModuleDef module_def = {
-  PyModuleDef_HEAD_INIT,
-  "_core",
-  "OME Files wrapper",
-  0,
-  OMEFilesMethods,
-  NULL,
-  NULL,
-  NULL,
-  NULL
-};
-#endif
-
-
-PyMODINIT_FUNC
-#ifdef PY3
-PyInit__core(void) {
-#else
-init_core(void) {
-#endif
-  PyObject *m;
-  PyOMETIFFReaderType.tp_new = PyType_GenericNew;
-  if (PyType_Ready(&PyOMETIFFReaderType) < 0) {
-    INIT_RETURN(NULL);;
-  }
-#ifdef PY3
-  m = PyModule_Create(&module_def);
-#else
-  m = Py_InitModule3("_core", OMEFilesMethods, "OME Files wrapper");
-#endif
-  if (!m) {
-    INIT_RETURN(NULL);;
-  }
-  Py_INCREF(&PyOMETIFFReaderType);
-  PyModule_AddObject(m, "OMETIFFReader", (PyObject *)&PyOMETIFFReaderType);
-  OMEFilesPyError = PyErr_NewException(const_cast<char*>("ome_files.Error"),
-                                       NULL, NULL);
-  if (OMEFilesPyError) {
-    Py_INCREF(OMEFilesPyError);
-    PyModule_AddObject(m, "Error", OMEFilesPyError);
-  }
-  INIT_RETURN(m);
+PYBIND11_PLUGIN(_core) {
+  py::module m("_core");
+  init_ometiffreader(m);
+  init_version(m);
+  return m.ptr();
 }

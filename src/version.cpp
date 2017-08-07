@@ -26,8 +26,23 @@
  * #L%
  */
 
-#pragma once
+#include <string>
+#include <cstdint>
+#include <ome/files/Version.h>
 
-#include <Python.h>
+#include "version.h"
 
-extern PyObject *OMEFilesPyError;
+
+namespace py = pybind11;
+using ome::files::Version;
+
+
+void init_version(py::module &m) {
+  py::class_<Version>(m, "Version")
+    .def(py::init<uint32_t, uint32_t, uint32_t, const std::string &>())
+    .def_readonly("major", &Version::major)
+    .def_readonly("minor", &Version::minor)
+    .def_readonly("patch", &Version::patch)
+    .def_readonly("extra", &Version::extra);
+  m.attr("version_info") = ome::files::release_version;
+}
