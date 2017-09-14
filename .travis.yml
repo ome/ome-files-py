@@ -16,4 +16,4 @@ before_install: pip install flake8
 
 script:
  - flake8 -v .
- - docker build -t ome-files-py -f docker/${PLATFORM}/Dockerfile .
+ - docker build -t ome-files-py -f Dockerfile.${PLATFORM} .
