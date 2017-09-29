@@ -26,9 +26,14 @@
  * #L%
  */
 
-#include <pybind11/stl.h>
+#include <algorithm>
 #include <string>
 #include <vector>
+
+#include <pybind11/pybind11.h>
+#include <pybind11/numpy.h>
+#include <pybind11/stl.h>
+
 #include <ome/files/in/OMETIFFReader.h>
 #include <ome/xml/meta/MetadataStore.h>
 #include <ome/xml/meta/OMEXMLMetadata.h>
@@ -36,9 +41,43 @@
 
 #include "ometiffreader.h"
 
-
 namespace py = pybind11;
 using ome::files::in::OMETIFFReader;
+using ome::files::PixelBuffer;
+using ome::files::PixelProperties;
+using ome::files::VariantPixelBuffer;
+
+namespace
+{
+
+  struct PBNumPyReadVisitor : public boost::static_visitor<py::array>
+  {
+    template<typename T>
+    auto
+    operator() (std::shared_ptr<PixelBuffer<T>>& v) const -> py::array
+    {
+      if (!v)
+        throw std::runtime_error("Null pixel type");
+
+      std::vector<size_t> shape(v->shape(), v->shape() + v->num_dimensions());
+      std::vector<size_t> strides(v->num_dimensions());
+      std::transform(v->strides(), v->strides() + v->num_dimensions(),
+                     strides.begin(),
+                     [](boost::multi_array_types::index s) -> size_t
+                     {
+                       if (s < 0)
+                         throw std::runtime_error("Arrays with negative strides are unsupported with NumPy");
+                       return s;
+                     });
+      py::array_t<T> py_array(shape, strides);
+      std::copy(v->data(), v->data() + v->num_elements(),
+                py_array.mutable_data());
+
+      return py_array;
+    }
+  };
+
+}
 
 
 void init_ometiffreader(py::module &m) {
@@ -80,6 +119,9 @@ void init_ometiffreader(py::module &m) {
     .def("get_size_c", [](const OMETIFFReader &r) {
         return r.getSizeC();
       }, "Get the size of the C dimension.")
+    .def("get_effective_size_c", [](const OMETIFFReader &r) {
+        return r.getEffectiveSizeC();
+      }, "Get the effective size of the C dimension.")
     .def("get_dimension_order", [](const OMETIFFReader &r) {
         return r.getDimensionOrder();
       }, "Get a five-character string representing the order in which "
@@ -99,7 +141,7 @@ void init_ometiffreader(py::module &m) {
     .def("is_interleaved",
 	 (bool (OMETIFFReader::*)() const) &OMETIFFReader::isInterleaved,
 	 "Whether or not the channels are interleaved")
-    .def("get_pixel_type", [](const OMETIFFReader &r) {
+    .def("get_pixel_dtype", [](const OMETIFFReader &r) {
 	switch(r.getPixelType()) {
 	case ome::xml::model::enums::PixelType::INT8:
 	  return "i1";
@@ -122,18 +164,16 @@ void init_ometiffreader(py::module &m) {
 	case ome::xml::model::enums::PixelType::COMPLEXDOUBLE:
 	  return "c16";
 	case ome::xml::model::enums::PixelType::BIT:
-	  return "b1";
+	  return "?";
 	default:
 	  throw std::invalid_argument("unknown pixel type");
 	}
       }, "Get the pixel type.")
     .def("open_bytes", [](const OMETIFFReader &r, size_t plane) {
-	ome::files::VariantPixelBuffer buf;
+	VariantPixelBuffer buf;
 	r.openBytes(plane, buf);
-	return py::bytes(std::string(
-          reinterpret_cast<char*>(buf.data()),
-          buf.num_elements() * ome::files::bytesPerPixel(buf.pixelType())
-	));
+        PBNumPyReadVisitor v;
+        return boost::apply_visitor(v, buf.vbuffer());
       }, "Obtain the image plane for the given index.")
     .def("get_used_files", [](const OMETIFFReader &r, bool noPixels = false) {
 	std::vector<std::string> fnames;
