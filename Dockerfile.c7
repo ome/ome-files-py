@@ -16,19 +16,7 @@ RUN pip3 install git+git://github.com/pearu/pylibtiff
 COPY . /git/ome-files-py
 
 WORKDIR /git/ome-files-py
-RUN python2 setup.py install
-
-WORKDIR /git/ome-files-py/test
-RUN python2 all_tests.py
-RUN python2 ../examples/dump_planes.py data/multi-channel-4D-series.companion.ome
-
-WORKDIR /git/ome-files-py
-RUN git clean -dfx
-RUN python3 setup.py install
-
-WORKDIR /git/ome-files-py/test
-RUN python3 all_tests.py
-RUN python3 ../examples/dump_planes.py data/multi-channel-4D-series.companion.ome
+RUN python2 setup.py install && git clean -dfx && python3 setup.py install
 
 WORKDIR /
 RUN pip2 install --force-reinstall --upgrade pip
