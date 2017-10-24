@@ -26,20 +26,47 @@
  * #L%
  */
 
-#include <pybind11/pybind11.h>
+/*─────────────────────────────────────────────────────────────────────────────
+ *
+ * THIS IS AUTOMATICALLY GENERATED CODE.  DO NOT MODIFY.
+ *
+ *─────────────────────────────────────────────────────────────────────────────
+ */
 
-#include "ometiffreader.h"
-#include "version.h"
-#include "enums.h"
+#pragma once
+
+#include "acquisitionmode.h"
+#include "arctype.h"
+#include "binning.h"
+#include "compression.h"
+#include "contrastmethod.h"
+#include "correction.h"
+#include "detectortype.h"
+#include "dimensionorder.h"
+#include "experimenttype.h"
+#include "filamenttype.h"
+#include "fillrule.h"
+#include "filtertype.h"
+#include "fontfamily.h"
+#include "fontstyle.h"
+#include "illuminationtype.h"
+#include "immersion.h"
+#include "lasermedium.h"
+#include "lasertype.h"
+#include "marker.h"
+#include "medium.h"
+#include "microbeammanipulationtype.h"
+#include "microscopetype.h"
+#include "namingconvention.h"
+#include "pixeltype.h"
+#include "pulse.h"
+#include "unitselectricpotential.h"
+#include "unitsfrequency.h"
+#include "unitslength.h"
+#include "unitspower.h"
+#include "unitspressure.h"
+#include "unitstemperature.h"
+#include "unitstime.h"
 
 
-namespace py = pybind11;
-
-
-PYBIND11_PLUGIN(_core) {
-  py::module m("_core");
-  init_ometiffreader(m);
-  init_version(m);
-  init_enums(m);
-  return m.ptr();
-}
+void init_enums(pybind11::module &m);

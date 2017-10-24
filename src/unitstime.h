@@ -26,20 +26,16 @@
  * #L%
  */
 
+/*─────────────────────────────────────────────────────────────────────────────
+ *
+ * THIS IS AUTOMATICALLY GENERATED CODE.  DO NOT MODIFY.
+ *
+ *─────────────────────────────────────────────────────────────────────────────
+ */
+
+#pragma once
+
 #include <pybind11/pybind11.h>
 
-#include "ometiffreader.h"
-#include "version.h"
-#include "enums.h"
 
-
-namespace py = pybind11;
-
-
-PYBIND11_PLUGIN(_core) {
-  py::module m("_core");
-  init_ometiffreader(m);
-  init_version(m);
-  init_enums(m);
-  return m.ptr();
-}
+void init_unitstime(pybind11::module &m);
