@@ -28,38 +28,20 @@ from __future__ import (
     absolute_import, division, print_function, unicode_literals
 )
 
-import sys
-import unittest
-
 import ome_files
 
 
-class TestVersion(unittest.TestCase):
+class TestVersion(object):
 
     def test_upstream_version(self):
         v = ome_files.upstream_version_info
         for a in "major", "minor", "patch", "extra":
-            self.assertTrue(hasattr(v, a))
-        self.assertEqual(len(v), 4)
-        self.assertEqual(v[:1], (v.major,))
-        self.assertEqual(v[:2], (v.major, v.minor))
-        self.assertEqual(v[:3], (v.major, v.minor, v.patch))
-        self.assertEqual(v[:4], (v.major, v.minor, v.patch, v.extra))
+            assert hasattr(v, a)
+        assert len(v) == 4
+        assert v[:1] == (v.major,)
+        assert v[:2] == (v.major, v.minor)
+        assert v[:3] == (v.major, v.minor, v.patch)
+        assert v[:4] == (v.major, v.minor, v.patch, v.extra)
         exp_str = "%d.%d.%d%s" % (v.major, v.minor, v.patch, v.extra)
-        self.assertEqual(str(v), exp_str)
-        self.assertEqual(ome_files.upstream_version, exp_str)
-
-
-def load_tests(loader, tests, pattern):
-    test_cases = (TestVersion,)
-    suite = unittest.TestSuite()
-    for tc in test_cases:
-        suite.addTests(loader.loadTestsFromTestCase(tc))
-    return suite
-
-
-if __name__ == '__main__':
-    suite = load_tests(unittest.defaultTestLoader, None, None)
-    runner = unittest.TextTestRunner(verbosity=2)
-    result = runner.run(suite)
-    sys.exit(not result.wasSuccessful())
+        assert str(v) == exp_str
+        assert ome_files.upstream_version == exp_str

@@ -40,6 +40,7 @@ except ImportError:
 
 __all__ = [
     "OMETIFFReader"
+    "OMETIFFWriter"
     "Version",
     "upstream_version",
     "upstream_version_info",
@@ -65,26 +66,78 @@ upstream_version = str(upstream_version_info)
 
 class OMETIFFReader(_core.OMETIFFReader):
 
-    def open_array(self, plane):
+    def open_bytes_simple(self, plane):
         """\
         Obtain the image plane for the given index as a numpy array, or a
         list of numpy arrays in the RGB case.
         """
-        H, W = self.get_size_y(), self.get_size_x()
-        dtype = np.dtype(self.get_pixel_type())
-        rgb = self.get_rgb_channel_count(0)  # TODO: use actual channel
-        interleaved = self.is_interleaved(0)
-        raw = self.open_bytes(plane)
-        pixels = np.fromstring(raw, dtype=dtype)
-        N = H * W
-        assert pixels.size == N * rgb
-        if rgb <= 1:
-            pixels = pixels.reshape((H, W))
+
+        # Fetch 9D array
+        a = self.open_bytes(plane)
+        # Drop all unused dimensions
+        s = np.squeeze(a, axis=(2, 3, 4, 6, 7, 8))
+        # Swap x,y to y,x
+        s = np.swapaxes(s, 0, 1)
+        # Split RGB samples into separate arrays
+        if s.shape[2] == 1:
+            return np.squeeze(s, axis=2)
         else:
-            if interleaved:
-                pixels = [pixels[j: j+N*rgb: rgb].reshape((H, W))
-                          for j in range(rgb)]
-            else:
-                pixels = [pixels[N*j: N*(j+1)].reshape((H, W))
-                          for j in range(rgb)]
-        return pixels
+            return [s[:, :, i] for i in range(0, s.shape[2])]
+
+
+class OMETIFFWriter(_core.OMETIFFWriter):
+
+    def save_bytes_simple(self, plane, buf):
+        """\
+        Obtain the image plane for the given index as a numpy array, or a
+        list of numpy arrays in the RGB case.
+        """
+
+        copy = None
+        # Recombine RGB samples into single array
+        if type(buf) is list:
+            shape = None
+            dtype = None
+            for planebuf in buf:
+                if planebuf.ndim != 2:
+                    raise RuntimeError(
+                        "Invalid number of dimensions for RGB plane")
+                if shape is None:
+                    shape = planebuf.shape
+                else:
+                    if shape != planebuf.shape:
+                        raise RuntimeError(
+                            "Inconsistent dimension shapes for RGB planes")
+                if dtype is None:
+                    dtype = planebuf.dtype
+                else:
+                    if dtype != planebuf.dtype:
+                        raise RuntimeError(
+                            "Inconsistent datatypes for RGB planes")
+
+            copy = np.ndarray(shape=(shape[0], shape[1], len(buf)),
+                              dtype=dtype, order='C')
+            for i in range(0, len(buf)):
+                copy[:, :, i] = buf[i]
+        else:
+            # Take a copy to preserve the original, since we will alter it
+            if buf.ndim != 2:
+                raise RuntimeError("Invalid number of dimensions for plane")
+            copy = np.array(buf, copy=True)
+            # Add subchannel dimension
+            copy = np.expand_dims(copy, axis=2)
+
+        # Swap y,x to x,y
+        copy = np.swapaxes(copy, 0, 1)
+
+        # Add missing unused dimensions
+        copy = np.expand_dims(copy, axis=2)
+        copy = np.expand_dims(copy, axis=3)
+        copy = np.expand_dims(copy, axis=4)
+
+        copy = np.expand_dims(copy, axis=6)
+        copy = np.expand_dims(copy, axis=7)
+        copy = np.expand_dims(copy, axis=8)
+
+        # Save 9D array
+        self.save_bytes(plane, copy)

@@ -23,7 +23,7 @@ def dump(ome_tiff_fn):
     reader.set_id(ome_tiff_fn)
     img_count = reader.get_image_count()
     H, W = reader.get_size_y(), reader.get_size_x()
-    dtype = np.dtype(reader.get_pixel_type())
+    dtype = np.dtype(reader.get_pixel_dtype())
     rgb = reader.get_rgb_channel_count(0)
     interleaved = reader.is_interleaved(0)
     print("image count: %d" % img_count)
@@ -33,7 +33,7 @@ def dump(ome_tiff_fn):
     print("image size: %d x %d" % (W, H))
     print("pixel type:", dtype)
     for i in range(img_count):
-        pixels = reader.open_array(i)
+        pixels = reader.open_bytes_simple(i)
         out_fn = "plane_%d.tiff" % i
         print("writing %s" % out_fn)
         with closing(TIFF.open(out_fn, mode="w")) as fo:

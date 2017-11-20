@@ -120,7 +120,8 @@ class Build(BaseBuild):
 
 ext = Extension(
     "ome_files._core",
-    sources=["src/omefiles.cpp", "src/ometiffreader.cpp", "src/version.cpp"],
+    sources=["src/omefiles.cpp", "src/ometiffreader.cpp",
+             "src/ometiffwriter.cpp", "src/version.cpp"],
     libraries=["ome-common", "ome-files", "ome-xml"],
     include_dirs=INCLUDE_DIRS,
     extra_compile_args=EXTRA_COMPILE_ARGS,

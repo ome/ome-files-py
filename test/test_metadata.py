@@ -28,13 +28,13 @@ from __future__ import (
     absolute_import, division, print_function, unicode_literals
 )
 
-import sys
-import unittest
+import pytest
 
 import ome_files.metadata as ofmd
 
 
-XML = """\
+@pytest.fixture(scope='class',
+                params=["""\
 <?xml version="1.0" encoding="UTF-8"?>
 <OME xmlns="http://www.openmicroscopy.org/Schemas/OME/2016-06"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -74,64 +74,51 @@ XML = """\
     </XMLAnnotation>
   </StructuredAnnotations>
 </OME>
-"""
+"""])
+def metadata_testcases(request):
+    request.cls.xml = request.param
+    request.cls.meta = ofmd.OMEXMLMetadata(request.param)
+    yield
 
 
-class TestOMEXMLMetadata(unittest.TestCase):
-
-    def setUp(self):
-        self.meta = ofmd.OMEXMLMetadata(XML)
+@pytest.mark.usefixtures('metadata_testcases')
+class TestOMEXMLMetadata(object):
 
     def __by_id(self, annotations):
         return dict((_.ID.split(":")[1], _) for _ in annotations)
 
     def __check_annotation(self, ann, id):
-        self.assertEqual(ann.Annotator, "A%s" % id)
-        self.assertEqual(ann.Namespace, "N%s" % id)
-        self.assertEqual(ann.Description, "D%s" % id)
-        self.assertEqual(ann.AnnotationRef, [
+        assert ann.Annotator == "A%s" % id
+        assert ann.Namespace == "N%s" % id
+        assert ann.Description == "D%s" % id
+        assert ann.AnnotationRef == [
             "Annotation:1%s" % id, "Annotation:2%s" % id
-        ])
+        ]
 
     def test_map_annotations(self):
         annotations = self.meta.get_map_annotations()
-        self.assertEqual(len(annotations), 2)
+        assert len(annotations) == 2
         for id, ann in self.__by_id(annotations).items():
             self.__check_annotation(ann, id)
-            self.assertEqual(ann.Value, {
+            assert ann.Value == {
                 "K%s0" % id: ["V%s0.0" % id, "V%s0.1" % id],
                 "K%s1" % id: ["V%s1.0" % id],
-            })
+            }
 
     def test_xml_annotations(self):
         annotations = self.meta.get_xml_annotations()
-        self.assertEqual(len(annotations), 1)
+        assert len(annotations) == 1
         for id, ann in self.__by_id(annotations).items():
             self.__check_annotation(ann, id)
         children = ofmd.get_children(ann.Value)
-        self.assertEqual(set(_.nodeName for _ in children),
-                         set(("This", "Can", "Be")))
+        assert len(set(_.nodeName for _ in children).symmetric_difference(
+                         set(("This", "Can", "Be")))) == 0
 
     def test_unicode(self):
         nonascii = "\N{CYRILLIC CAPITAL LETTER O WITH DIAERESIS}"
         try:
-            meta = ofmd.OMEXMLMetadata(XML.replace("D0", nonascii))
+            meta = ofmd.OMEXMLMetadata(self.xml.replace("D0", nonascii))
         except UnicodeEncodeError:
             self.fail("Cannot construct OMEXMLMetadata from xml string")
         by_id = self.__by_id(meta.get_map_annotations())
-        self.assertEqual(by_id["0"].Description, nonascii)
-
-
-def load_tests(loader, tests, pattern):
-    test_cases = (TestOMEXMLMetadata,)
-    suite = unittest.TestSuite()
-    for tc in test_cases:
-        suite.addTests(loader.loadTestsFromTestCase(tc))
-    return suite
-
-
-if __name__ == '__main__':
-    suite = load_tests(unittest.defaultTestLoader, None, None)
-    runner = unittest.TextTestRunner(verbosity=2)
-    result = runner.run(suite)
-    sys.exit(not result.wasSuccessful())
+        assert by_id["0"].Description == nonascii

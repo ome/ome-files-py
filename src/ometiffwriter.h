@@ -26,18 +26,9 @@
  * #L%
  */
 
+#pragma once
+
 #include <pybind11/pybind11.h>
 
-#include "ometiffreader.h"
-#include "ometiffwriter.h"
-#include "version.h"
 
-
-namespace py = pybind11;
-
-
-PYBIND11_MODULE(_core, m) {
-  init_ometiffreader(m);
-  init_ometiffwriter(m);
-  init_version(m);
-}
+void init_ometiffwriter(pybind11::module &m);
