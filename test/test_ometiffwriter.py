@@ -28,22 +28,10 @@ from __future__ import (
     absolute_import, division, print_function, unicode_literals
 )
 
-import os
-
 import pytest
 
 import numpy as np
 import ome_files
-
-THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-
-
-class NotABool(object):
-    def __nonzero__(self):
-        raise NotImplementedError("truth value is undefined")
-
-    def __bool__(self):
-        raise NotImplementedError("truth value is undefined")
 
 
 def rgb_pixeldata(self):
