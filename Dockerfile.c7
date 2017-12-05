@@ -1,4 +1,4 @@
-FROM openmicroscopy/ome-files-cpp-c7
+FROM openmicroscopy/ome-files-cpp-c7:0.5.0
 MAINTAINER ome-devel@lists.openmicroscopy.org.uk
 
 RUN yum install -y python-devel python-pip
