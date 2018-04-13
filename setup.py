@@ -44,7 +44,7 @@ else:
     INCLUDE_DIRS = [pybind11.get_include(), pybind11.get_include(user=True)]
 
 
-EXTRA_COMPILE_ARGS = ['-std=c++11'] if platform.system != "Windows" else []
+EXTRA_COMPILE_ARGS = ['-std=c++14'] if platform.system != "Windows" else []
 VERSION_FILE = "VERSION"
 PY_VERSION_FILE = "ome_files/version.py"
 
