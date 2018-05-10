@@ -50,7 +50,7 @@ using ome::files::VariantPixelBuffer;
 namespace
 {
 
-  struct PBNumPyReadVisitor : public boost::static_visitor<py::array>
+  struct PBNumPyReadVisitor
   {
     template<typename T>
     auto
@@ -173,7 +173,7 @@ void init_ometiffreader(py::module &m) {
 	VariantPixelBuffer buf;
 	r.openBytes(plane, buf);
         PBNumPyReadVisitor v;
-        return boost::apply_visitor(v, buf.vbuffer());
+        return ome::compat::visit(v, buf.vbuffer());
       }, "Obtain the image plane for the given index.")
     .def("get_used_files", [](const OMETIFFReader &r, bool noPixels = false) {
 	std::vector<std::string> fnames;
