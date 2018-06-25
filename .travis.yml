@@ -4,22 +4,6 @@ python:
  - "2.7"
  - "3.6"
 
-env:
- - PLATFORM=c7
- - PLATFORM=u1604
-
-sudo: required
-
-services:
- - docker
-
 before_install: pip install flake8
 
-before_script: flake8 -v .
-
-script:
- - docker build -t ome-files-py -f Dockerfile.${PLATFORM} .
- - docker run --name omefilespy -dt ome-files-py
- - DEBUG=true ./.travis/run_checks
- - docker stop omefilespy
- - docker rm omefilespy
+script: flake8 -v .
