@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+[ -n "${DEBUG:-}" ] && set -x
+
+export PYTHON="python${TRAVIS_PYTHON_VERSION%.*}"
+docker exec omefilespy bash -c \
+  "cd /git/ome-files-py/test && ${PYTHON} -m pytest"
+docker exec omefilespy bash -c \
+  "cd /git/ome-files-py/examples && ${PYTHON} dump_planes.py ../test/data/multi-channel-4D-series.companion.ome"
