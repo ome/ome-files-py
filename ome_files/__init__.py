@@ -1,6 +1,7 @@
 # #%L
 # OME-FILES Python library for image IO.
-# Copyright (c) 2016-2017 University of Dundee
+# Copyright © 2016-2017 University of Dundee
+# Copyright © 2018 Quantitative Imaging Systems, LLC
 # %%
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -72,10 +73,10 @@ class OMETIFFReader(_core.OMETIFFReader):
         list of numpy arrays in the RGB case.
         """
 
-        # Fetch 9D array
+        # Fetch 4D array
         a = self.open_bytes(plane)
         # Drop all unused dimensions
-        s = np.squeeze(a, axis=(2, 3, 4, 6, 7, 8))
+        s = np.squeeze(a, axis=(2))
         # Swap x,y to y,x
         s = np.swapaxes(s, 0, 1)
         # Split RGB samples into separate arrays
@@ -132,12 +133,6 @@ class OMETIFFWriter(_core.OMETIFFWriter):
 
         # Add missing unused dimensions
         copy = np.expand_dims(copy, axis=2)
-        copy = np.expand_dims(copy, axis=3)
-        copy = np.expand_dims(copy, axis=4)
 
-        copy = np.expand_dims(copy, axis=6)
-        copy = np.expand_dims(copy, axis=7)
-        copy = np.expand_dims(copy, axis=8)
-
-        # Save 9D array
+        # Save 4D array
         self.save_bytes(plane, copy)

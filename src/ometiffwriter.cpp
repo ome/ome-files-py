@@ -1,7 +1,8 @@
 /*
  * #%L
  * OME-FILES Python library for image IO.
- * Copyright (c) 2017 University of Dundee
+ * Copyright © 2017 University of Dundee
+ * Copyright © 2018 Quantitative Imaging Systems, LLC
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -89,9 +90,9 @@ namespace
       {
         for(typename decltype(tdest)::index y = 0; y < src.shape()[ome::files::DIM_SPATIAL_Y]; y++)
           {
-            for(typename decltype(tdest)::index s = 0; s < src.shape()[ome::files::DIM_SUBCHANNEL]; s++)
+            for(typename decltype(tdest)::index s = 0; s < src.shape()[ome::files::DIM_SAMPLE]; s++)
               {
-                tdest[x][y][0][0][0][s][0][0][0] = tsrc.at(x, y, 0, 0, 0, s, 0, 0, 0);
+                tdest[x][y][0][s] = tsrc.at(x, y, 0, s);
               }
           }
       }
